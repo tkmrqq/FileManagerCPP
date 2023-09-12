@@ -1,5 +1,19 @@
 <RCC>
     <qresource prefix="/new/windowIcon">
         <file>Resources/Icons/windowIcon.png</file>
+        <file>Resources/Icons/arrowBack.svg</file>
+        <file>Resources/Icons/arrowForward.svg</file>
+        <file>Resources/Icons/close.svg</file>
+        <file>Resources/Icons/desc.svg</file>
+        <file>Resources/Icons/download.svg</file>
+        <file>Resources/Icons/folder.svg</file>
+        <file>Resources/Icons/hardDrive.svg</file>
+        <file>Resources/Icons/maximize.svg</file>
+        <file>Resources/Icons/minimize.svg</file>
+        <file>Resources/Icons/music.svg</file>
+        <file>Resources/Icons/search.svg</file>
+        <file>Resources/Icons/sort.svg</file>
+        <file>Resources/Icons/video.svg</file>
+        <file>Resources/Icons/desktop.svg</file>
     </qresource>
 </RCC>

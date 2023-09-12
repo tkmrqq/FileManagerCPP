@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMenuBar>
+#include <QDir>
 #include <QtCore>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,29 +12,49 @@ MainWindow::MainWindow(QWidget *parent)
 //    ui->closeButton->setStyleSheet("QPushButton{background: transparent;}");
 
     this->setStyleSheet("background-color:#222222");
-    this->setWindowFlag(Qt::FramelessWindowHint);
+//    this->setWindowFlag(Qt::FramelessWindowHint);
 
     //ContextMenu logic
     contextMenu = new QMenu(this);
-    contextMenu->setStyleSheet("background-color:#171717");
+    contextMenu->setStyleSheet(
+        "background-color:#171717; border: 1px solid #171717; border-radius: 30px;");
 
-    QAction *action1 = contextMenu->addAction("Move 1");
-    QAction *action2 = contextMenu->addAction("Move 2");
+    QAction *view = contextMenu->addAction("View");
+    QAction *sort = contextMenu->addAction("Sort");
+    QAction *update = contextMenu->addAction("Update");
+    QAction *create = contextMenu->addAction("Create");
+    QAction *properties = contextMenu->addAction("Properties");
 
-    connect(action1, &QAction::triggered, this, &MainWindow::action1Clicked);
-    connect(action2, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
+    connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(create, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(properties, &QAction::triggered, this, &MainWindow::action2Clicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
     //dirmodel
-
     QString sPath = "C:/";
     dirmodel = new QFileSystemModel(this);
     dirmodel->setRootPath(sPath);
-    ui->treeView->setModel(dirmodel);
+    //    ui->treeView->setModel(dirmodel);
 
+    //file model
 
+    QString rootPath = "C:/";
+    QDir rootDir(rootPath);
+
+    QFileInfoList fileList = rootDir.entryInfoList();
+
+    QTableWidget layout(this);
+
+    foreach (QFileInfo fileInfo, fileList) {
+        QIcon icon = QFileIconProvider().icon(fileInfo);
+        QLabel *label = new QLabel;
+        label->setPixmap(icon.pixmap(48, 48));
+        label->setText(fileInfo.fileName());
+    }
 }
 
 MainWindow::~MainWindow()
