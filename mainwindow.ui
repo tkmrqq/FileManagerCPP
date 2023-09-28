@@ -374,6 +374,9 @@ QLabel{
           </item>
           <item alignment="Qt::AlignTop">
            <widget class="QPushButton" name="Disk1">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="font">
              <font>
               <family>Inter Medium</family>
@@ -431,6 +434,9 @@ QLabel{
       <property name="spacing">
        <number>0</number>
       </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
       <item>
        <widget class="QFrame" name="frame_2">
         <property name="frameShape">
@@ -439,7 +445,7 @@ QLabel{
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,40">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -456,7 +462,42 @@ QLabel{
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QPushButton" name="backButton">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="WindowIcon.qrc">
+             <normaloff>:/new/windowIcon/Resources/Icons/arrowBack.svg</normaloff>:/new/windowIcon/Resources/Icons/arrowBack.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nextButton">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="WindowIcon.qrc">
+             <normaloff>:/new/windowIcon/Resources/Icons/arrowForward.svg</normaloff>:/new/windowIcon/Resources/Icons/arrowForward.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="pathLabel">
            <property name="font">
             <font>
              <family>Inter SemiBold</family>
@@ -469,7 +510,7 @@ QLabel{
             <string notr="true">color: white;</string>
            </property>
            <property name="text">
-            <string>Current Folder</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -477,18 +518,14 @@ QLabel{
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_6">
+       <widget class="QFrame" name="foldersFrame">
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QTableWidget" name="tableWidget"/>
-         </item>
-        </layout>
+        <layout class="QHBoxLayout" name="horizontalLayout_4"/>
        </widget>
       </item>
      </layout>
