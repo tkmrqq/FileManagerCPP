@@ -3,6 +3,7 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QDir>
+#include <QInputDialog>
 #include <QLayout>
 #include <QMouseEvent>
 #include <QtCore>
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
     connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
     connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
-    connect(create, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
     connect(properties, &QAction::triggered, this, &MainWindow::action2Clicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -111,7 +112,7 @@ void MainWindow::on_backButton_clicked()
 void MainWindow::onButtonClicked(QString folderName)
 {
     // Запускаем таймер для ожидания второго щелчка
-    doubleClickTimer->start(QApplication::doubleClickInterval());
+    //    doubleClickTimer->start(QApplication::doubleClickInterval());
     qDebug() << folderName;
     clearDir();
     renderDir(folderName);
@@ -121,8 +122,8 @@ void MainWindow::onButtonClicked(QString folderName)
 void MainWindow::handleDoubleClick(QString folderPath)
 {
     qDebug() << "Folder path in hanlde: " << folderPath;
-    //    clearDir();
-    //    renderDir(folderPath);
+    clearDir();
+    renderDir(folderPath);
 }
 
 void MainWindow::onDirectoryChanged()
@@ -137,71 +138,78 @@ void MainWindow::renderDir(const QString &dirPath)
     ui->pathLabel->setText(dirPath);
     QDir directory(dirPath);
     QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-
-    //    qDebug() << directory;
-    //    qDebug() << "File in dir: " << files;
+    int columns = 5; // Количество колонок
+    int rows = 0;
+    if (files.size() < columns + 1) {
+        rows = 2;
+    } else
+        rows = files.size() / 2 + 1;
+    ui->tableWidget->setRowCount(rows);
+    ui->tableWidget->setColumnCount(columns);
+    ui->tableWidget->setShowGrid(false);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    int row = 0;
+    int col = 0;
     foreach (const QString &filename, files) {
-        // Создаем кнопку
         QPushButton *button = new QPushButton;
-        button->setIcon(
-            QIcon(":/new/windowIcon/Resources/Icons/folder.svg")); // Устанавливаем иконку
-        button->setIconSize(QSize(64, 64)); // Устанавливаем размер иконки
-
-        //        connect(button, &QPushButton::clicked, this, &MainWindow::onButtonClicked);
-
-        // Создаем QLabel для имени файла
+        QFileInfo fileInfo(directory.filePath(filename));
+        if (fileInfo.isDir()) {
+            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
+        } else {
+            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
+        }
+        button->setIconSize(QSize(64, 64));
         QLabel *label = new QLabel(QFileInfo(filename).fileName());
-        label->setWordWrap(true); // Перенос по словам
+        label->setWordWrap(true);
         label->setMaximumWidth(64);
-
-        //double click handle
-        doubleClickTimer = new QTimer(this);
-        doubleClickTimer->setSingleShot(true);
-        doubleClickTimer->setInterval(QApplication::doubleClickInterval());
-        //        connect(doubleClickTimer, &QTimer::timeout, this, &MainWindow::handleDoubleClick);
-
         QString folderPath = dirPath + '/' + filename;
+        QString transPath = dirPath + '/' + QFileInfo(filename).filePath();
+        connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
 
-        QString transPath = dirPath + '/'
-                            + QFileInfo(filename).filePath(); //путь для переходу в папку
+        //        connect(doubleClickTimer, &QTimer::timeout, = {
+        //            MainWindow::handleDoubleClick(transPath);
+        //        });
 
-        connect(button, &QPushButton::clicked, [=]() {
-            //            QString folderPath = filename;
-            MainWindow::onButtonClicked(transPath);
-        });
-
-        connect(doubleClickTimer, &QTimer::timeout, [=]() {
-            MainWindow::handleDoubleClick(transPath);
-        });
-
-        // Создаем вертикальный макет для размещения кнопки и подписи
-        QVBoxLayout *buttonLayout = new QVBoxLayout;
-        buttonLayout->addWidget(button);
-        buttonLayout->addWidget(label);
-        // Создаем виджет-контейнер для вертикального макета
-        QWidget *buttonContainer = new QWidget;
-        buttonContainer->setLayout(buttonLayout);
-
-        //styles
+        ui->tableWidget->setCellWidget(row, col, button);
+        ui->tableWidget->setCellWidget(row + 1, col, label);
         label->setStyleSheet("color: white");
         button->setStyleSheet("background-color: transparent");
-        // Добавляем виджет-контейнер в основной вертикальный макет (foldersFrame)
-        ui->foldersFrame->layout()->addWidget(buttonContainer);
+
+        col++;
+        if (col == columns) {
+            col = 0;
+            row += 2; // Исправлено на row += 2
+        }
     }
-    ui->foldersFrame->layout()->setAlignment(Qt::AlignTop);
+    ui->tableWidget->verticalHeader()->setVisible(false); // Скрыть номера строк
+    ui->tableWidget->horizontalHeader()->setVisible(false); // Скрыть номера столбцов
 }
 
 void MainWindow::clearDir()
 {
-    QLayout *layout = ui->foldersFrame->layout();
-    QLayoutItem *item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-        QWidget *widget = item->widget();
-        if (widget != nullptr) {
-            delete widget;
-        }
-        delete item;
-    }
+    QTableWidget *table = ui->tableWidget;
+    table->clear();
+    int rowCount = table->rowCount();
+    int columnCount = table->columnCount();
+
+    //    for (int row = 0; row < rowCount; ++row) {
+    //        for (int column = 0; column < columnCount; ++column) {
+    //            QWidget *widget = table->cellWidget(row, column);
+    //            if (widget != nullptr) {
+    //                table->removeCellWidget(row, column);
+    //                delete widget;
+    //            }
+    //        }
+    //    }
+    //    QLayoutItem *item;
+    //    while ((item = layout()->takeAt(0)) != nullptr) {
+    //        QWidget *widget = item->widget();
+    //        if (widget != nullptr) {
+    //            delete widget;
+    //        }
+    //        delete item;
+    //    }
 }
 
 //folders model
@@ -237,4 +245,28 @@ void MainWindow::getDriveList()
         // Добавляйте кнопку в ваш интерфейс
         ui->frame_4->layout()->addWidget(button);
     }
+}
+
+void MainWindow::createFolder(const QString &folderPath)
+{
+    QDir dir;
+
+    bool ok;
+    QString inputText
+        = QInputDialog::getText(this, "Ввод текста", "Введите текст:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !inputText.isEmpty()) {
+        qDebug() << "Input ok!";
+    } else {
+        qDebug() << "Input not ok!";
+    }
+
+    QString folder = folderPath + "/" + inputText; //путь до папки, которую надо создать
+
+    if (dir.mkdir(folder)) {
+        qDebug() << "Folder created! Path:" << folder;
+    } else
+        qDebug() << "Folder exists";
+    clearDir();
+    renderDir(folderPath);
 }

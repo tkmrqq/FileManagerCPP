@@ -19,17 +19,18 @@ public:
     //widget
     TableModel *tableModel = new TableModel(this);
 
+public slots:
+    void createFolder(const QString &folderPath);
+
 private slots:
 
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
 
-    void action2Clicked(){
-        qDebug() << "Doing 2 clicked";
-    }
+    void action2Clicked() { qDebug() << "Doing 2 clicked"; }
 
-    void showContextMenu(const QPoint &pos){
-        contextMenu->exec(mapToGlobal(pos));
-    }
+    void actionCreate() { createFolder(currentPath); }
+
+    void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
 
     void on_closeButton_clicked();
     void on_maximizeButton_clicked();

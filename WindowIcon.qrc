@@ -15,5 +15,6 @@
         <file>Resources/Icons/sort.svg</file>
         <file>Resources/Icons/video.svg</file>
         <file>Resources/Icons/desktop.svg</file>
+        <file>Resources/Icons/file.svg</file>
     </qresource>
 </RCC>
