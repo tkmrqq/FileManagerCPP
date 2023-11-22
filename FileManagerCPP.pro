@@ -24,6 +24,7 @@ SOURCES += \
 
 HEADERS += \
     fileinfolist.h \
+    fileinfowindow.h \
     mainwindow.h \
     tablemodel.h
 

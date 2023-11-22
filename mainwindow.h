@@ -36,14 +36,17 @@ private slots:
     void on_maximizeButton_clicked();
     void on_minimizeButton_clicked();
     void on_backButton_clicked();
+    void on_prevButton_clicked();
+    void on_themeButton_clicked();
     void onButtonClicked(QString folderName);
     void handleDoubleClick(QString folderName);
     void onDirectoryChanged();
     void renderDir(const QString &dirPath);
     void clearDir();
-    void to_desktop();
     void to_disk();
+    void to_fav(QString favPath);
     void getDriveList();
+    void propertiesButton(QString folderName);
     //    void updateGrid();
 
 private:
@@ -53,6 +56,8 @@ private:
     QTimer *doubleClickTimer;
     QFileSystemWatcher *fileSystemWatcher;
     QString currentPath;
+    QString folderName;
+    QString prevPath;
 };
 
 
