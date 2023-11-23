@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     fileinfolist.cpp \
+    flowlayout.cpp \
     main.cpp \
     mainwindow.cpp \
     tablemodel.cpp
@@ -25,6 +26,7 @@ SOURCES += \
 HEADERS += \
     fileinfolist.h \
     fileinfowindow.h \
+    flowlayout.h \
     mainwindow.h \
     tablemodel.h
 
@@ -38,3 +40,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     WindowIcon.qrc
+
+DISTFILES += \
+    styles.qss

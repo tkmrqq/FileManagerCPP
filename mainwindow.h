@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "flowlayout.h"
 #include "tablemodel.h"
 #include <QMainWindow>
 #include <QtWidgets>
@@ -25,9 +26,7 @@ public slots:
 private slots:
 
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
-
     void action2Clicked() { qDebug() << "Doing 2 clicked"; }
-
     void actionCreate() { createFolder(currentPath); }
 
     void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
@@ -58,6 +57,7 @@ private:
     QString currentPath;
     QString folderName;
     QString prevPath;
+    FlowLayout *flowLayout;
 };
 
 
