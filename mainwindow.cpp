@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //ContextMenu logic
     contextMenu = new QMenu(this);
+    flowLayout = new FlowLayout;
 
     QAction *view = contextMenu->addAction("View");
     QAction *sort = contextMenu->addAction("Sort");
@@ -182,19 +183,9 @@ void MainWindow::renderDir(const QString &dirPath)
     currentPath = dirPath;
     QDir directory(dirPath);
     QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-    int columns = 5; // Количество колонок
-    int rows = 0;
-    if (files.size() < columns + 1) {
-        rows = 2;
-    } else
-        rows = files.size() / 2 + 1;
-    ui->tableWidget->setRowCount(rows);
-    ui->tableWidget->setColumnCount(columns);
-    ui->tableWidget->setShowGrid(false);
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    int row = 0;
-    int col = 0;
+    QWidget *widget = new QWidget(this);
+    QVBoxLayout *buttonLayout = new QVBoxLayout;
+
     foreach (const QString &filename, files) {
         QPushButton *button = new QPushButton;
         QFileInfo fileInfo(directory.filePath(filename));
@@ -217,20 +208,17 @@ void MainWindow::renderDir(const QString &dirPath)
         //        connect(doubleClickTimer, &QTimer::timeout, = {
         //            MainWindow::handleDoubleClick(transPath);
         //        });
-
-        ui->tableWidget->setCellWidget(row, col, button);
-        ui->tableWidget->setCellWidget(row + 1, col, label);
         label->setStyleSheet("color: white");
         button->setStyleSheet("background-color: transparent");
-
-        col++;
-        if (col == columns) {
-            col = 0;
-            row += 2; // Исправлено на row += 2
-        }
+        buttonLayout->addWidget(button);
+        buttonLayout->addWidget(label);
     }
-    ui->tableWidget->verticalHeader()->setVisible(false); // Скрыть номера строк
+    widget->setLayout(buttonLayout);
+    flowLayout->addWidget(widget);
+    //        ->setLayout(flowLayout);
+    ui->tableWidget->verticalHeader()->setVisible(false);   // Скрыть номера строк
     ui->tableWidget->horizontalHeader()->setVisible(false); // Скрыть номера столбцов
+    ui->tableWidget->setStyleSheet("border-radius: 0px");
     qDebug() << "Current path (render):" << currentPath;
 }
 
@@ -238,8 +226,8 @@ void MainWindow::clearDir()
 {
     QTableWidget *table = ui->tableWidget;
     table->clear();
-    int rowCount = table->rowCount();
-    int columnCount = table->columnCount();
+    //    int rowCount = table->rowCount();
+    //    int columnCount = table->columnCount();
 
     //    for (int row = 0; row < rowCount; ++row) {
     //        for (int column = 0; column < columnCount; ++column) {
