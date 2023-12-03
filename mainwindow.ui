@@ -521,7 +521,7 @@ background-color: transparent;
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,2">
        <property name="spacing">
         <number>20</number>
        </property>
@@ -887,13 +887,30 @@ QLabel{
       </property>
       <item>
        <widget class="QFrame" name="frame_2">
+        <property name="styleSheet">
+         <string notr="true">QFrame{
+border-bottom: 1px solid #131313;
+}
+
+QPushButton{
+border: none;
+}
+
+QPushButton:pressed{
+background-color: #131313;
+border: 5px solid #131313;
+border-radius: 5px;
+width: 16px;
+height: 16px;
+}</string>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,40,0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,40,0,0">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -929,6 +946,12 @@ QLabel{
             <iconset resource="WindowIcon.qrc">
              <normaloff>:/new/windowIcon/Resources/Icons/arrowForward.svg</normaloff>:/new/windowIcon/Resources/Icons/arrowForward.svg</iconset>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>16</height>
+            </size>
+           </property>
           </widget>
          </item>
          <item>
@@ -957,8 +980,28 @@ QLabel{
            <property name="styleSheet">
             <string notr="true">color: white;</string>
            </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
            <property name="text">
             <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="WindowIcon.qrc">
+             <normaloff>:/new/windowIcon/Resources/Icons/search.svg</normaloff>:/new/windowIcon/Resources/Icons/search.svg</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
            </property>
           </widget>
          </item>
@@ -970,6 +1013,12 @@ QLabel{
            <property name="text">
             <string>theme</string>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
           </widget>
          </item>
         </layout>
@@ -977,6 +1026,9 @@ QLabel{
       </item>
       <item>
        <widget class="QFrame" name="foldersFrame">
+        <property name="styleSheet">
+         <string notr="true">border: 0;</string>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -1000,7 +1052,53 @@ QLabel{
           <number>0</number>
          </property>
          <item>
-          <widget class="QTableWidget" name="tableWidget"/>
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="styleSheet">
+            <string notr="true">QScrollBar:vertical {
+           border: 2px solid grey;
+            background: #32CC99;
+            width: 15px;
+            margin: 22px 0 22px 0;
+        }
+        QScrollBar::handle:vertical {
+            background: white;
+           min-height: 20px;
+        }
+        QScrollBar::add-line:vertical {
+            border: 2px solid grey;
+            background: #32CC99;
+            height: 20px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+            border: 2px solid grey;
+            background: #32CC99;
+            height: 20px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="folderWidget">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>978</width>
+              <height>550</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -1015,7 +1113,7 @@ QLabel{
      <x>0</x>
      <y>0</y>
      <width>1120</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

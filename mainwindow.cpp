@@ -9,7 +9,10 @@
 #include <QLayout>
 #include <QMouseEvent>
 #include <QPalette>
+#include <QScrollArea>
 #include <QtCore>
+
+void MainWindow::style() {}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,7 +21,21 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     //    ui->closeButton->setStyleSheet("QPushButton{background: transparent;}");
-
+    ui->scrollArea->verticalScrollBar()->setStyleSheet(
+        "QScrollBar:vertical {"
+        "    background: #171717;"
+        "    width: 8px;"
+        "    border-radius: 4px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        "    background: #959595;"
+        "    border-radius: 4px;"
+        "    min-height: 20px;"
+        "}"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+        "    background: none;"
+        "border"
+        "}");
     this->setStyleSheet("background-color:#222222");
     //    this->setWindowFlag(Qt::FramelessWindowHint);
 
@@ -60,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     renderDir(startPath);
-    //    getDriveList();
+    //getDriveList();
 
     //path change
     fileSystemWatcher = new QFileSystemWatcher(this);
@@ -131,7 +148,9 @@ void MainWindow::on_backButton_clicked()
     QString newPath = currPath.path();
 
     qDebug() << "Backbutton: " << newPath;
-    prevPath = currentPath;
+    if (currentPath != newPath) {
+        prevPath = currentPath;
+    }
     currentPath = newPath;
     clearDir();
     renderDir(newPath);
@@ -177,14 +196,60 @@ void MainWindow::onDirectoryChanged()
     renderDir(currDir);
 }
 
+//void MainWindow::renderDir(const QString &dirPath)
+//{
+//    ui->pathLabel->setText(dirPath);
+//    currentPath = dirPath;
+//    QDir directory(dirPath);
+//    QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
+//    QVBoxLayout *buttonLayout = new QVBoxLayout();
+
+//    foreach (const QString &filename, files) {
+//        QPushButton *button = new QPushButton;
+//        QFileInfo fileInfo(directory.filePath(filename));
+//        QFileIconProvider iconProvider;
+//        if (fileInfo.isDir()) {
+//            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
+//        } else {
+//            //            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
+//            QIcon fileIcon = iconProvider.icon(fileInfo);
+//            button->setIcon(fileIcon);
+//        }
+//        button->setIconSize(QSize(64, 64));
+//        QLabel *label = new QLabel(QFileInfo(filename).fileName());
+//        label->setWordWrap(true);
+//        label->setMaximumWidth(64);
+//        QString folderPath = dirPath + '/' + filename;
+//        QString transPath = dirPath + '/' + QFileInfo(filename).filePath();
+//        connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
+//        folderName = transPath;
+//        //        connect(doubleClickTimer, &QTimer::timeout, = {
+//        //            MainWindow::handleDoubleClick(transPath);
+//        //        });
+//        label->setStyleSheet("color: white");
+//        button->setStyleSheet("background-color: transparent");
+//        buttonLayout->addWidget(button);
+//        buttonLayout->addWidget(label);
+//    }
+//    ui->foldersFrame->setLayout(buttonLayout);
+
+//    //        ->setLayout(flowLayout);
+//    //    ui->tableWidget->verticalHeader()->setVisible(false);
+//    //    ui->tableWidget->horizontalHeader()->setVisible(false);
+//    //    ui->tableWidget->setStyleSheet("border-radius: 0px");
+//    qDebug() << "Current path (render):" << currentPath;
+//}
+
 void MainWindow::renderDir(const QString &dirPath)
 {
     ui->pathLabel->setText(dirPath);
     currentPath = dirPath;
     QDir directory(dirPath);
     QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-    QWidget *widget = new QWidget(this);
-    QVBoxLayout *buttonLayout = new QVBoxLayout;
+    // Создаем сетку
+    QGridLayout *gridLayout = new QGridLayout;
+    int row = 0;
+    int col = 0;
 
     foreach (const QString &filename, files) {
         QPushButton *button = new QPushButton;
@@ -193,7 +258,7 @@ void MainWindow::renderDir(const QString &dirPath)
         if (fileInfo.isDir()) {
             button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
         } else {
-            //            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
+            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
             QIcon fileIcon = iconProvider.icon(fileInfo);
             button->setIcon(fileIcon);
         }
@@ -201,31 +266,43 @@ void MainWindow::renderDir(const QString &dirPath)
         QLabel *label = new QLabel(QFileInfo(filename).fileName());
         label->setWordWrap(true);
         label->setMaximumWidth(64);
-        QString folderPath = dirPath + '/' + filename;
         QString transPath = dirPath + '/' + QFileInfo(filename).filePath();
         connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
         folderName = transPath;
-        //        connect(doubleClickTimer, &QTimer::timeout, = {
-        //            MainWindow::handleDoubleClick(transPath);
-        //        });
         label->setStyleSheet("color: white");
-        button->setStyleSheet("background-color: transparent");
-        buttonLayout->addWidget(button);
-        buttonLayout->addWidget(label);
+        button->setStyleSheet("QPushButton {background-color: transparent} QPushButton:pressed "
+                              "{background-color: #131313; border-radius: 8px}");
+
+        // Добавляем кнопку и лейбл в сетку
+        gridLayout->addWidget(button, row, col);
+        gridLayout->addWidget(label, row + 1, col);
+
+        // Увеличиваем столбец и переходим на новую строку
+        col++;
+        if (col > 5) {
+            col = 0;
+            row += 2;
+        }
     }
-    widget->setLayout(buttonLayout);
-    flowLayout->addWidget(widget);
-    //        ->setLayout(flowLayout);
-    ui->tableWidget->verticalHeader()->setVisible(false);   // Скрыть номера строк
-    ui->tableWidget->horizontalHeader()->setVisible(false); // Скрыть номера столбцов
-    ui->tableWidget->setStyleSheet("border-radius: 0px");
-    qDebug() << "Current path (render):" << currentPath;
+    ui->folderWidget->setLayout(gridLayout);
+
+    //    setFixedSize(1280, 720);
+    //    setCentralWidget(scrollArea);
 }
 
 void MainWindow::clearDir()
 {
-    QTableWidget *table = ui->tableWidget;
-    table->clear();
+    QLayout *layout = ui->folderWidget->layout();
+    if (layout) {
+        QLayoutItem *item;
+        while ((item = layout->takeAt(0)) != nullptr) {
+            delete item->widget(); // Освобождаем виджет
+            delete item;           // Освобождаем элемент макета
+        }
+        delete layout; // Освобождаем сам макет
+    }
+    //    QTableWidget *table = ui->tableWidget;
+    //    table->clear();
     //    int rowCount = table->rowCount();
     //    int columnCount = table->columnCount();
 
@@ -312,25 +389,27 @@ void MainWindow::on_themeButton_clicked()
 {
     static bool isDark = false;
     if (isDark) {
-        QApplication::setPalette(QApplication::style()->standardPalette());
+        //        QApplication::setPalette(QApplication::style()->standardPalette());
+        ui->frame->setStyleSheet("background-color:#101010");
         isDark = false;
     } else {
-        QApplication::setStyle(QStyleFactory::create("Fusion"));
-        QPalette darkPalette;
-        darkPalette.setColor(QPalette::Window, QColor(22, 22, 22));
-        darkPalette.setColor(QPalette::WindowText, Qt::white);
-        darkPalette.setColor(QPalette::Base, QColor(22, 22, 22));
-        darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-        darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-        darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-        darkPalette.setColor(QPalette::Text, Qt::white);
-        darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-        darkPalette.setColor(QPalette::ButtonText, Qt::white);
-        darkPalette.setColor(QPalette::BrightText, Qt::red);
-        darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-        darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-        darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-        QApplication::setPalette(darkPalette);
+        //        QApplication::setStyle(QStyleFactory::create("Fusion"));
+        //        QPalette darkPalette;
+        //        darkPalette.setColor(QPalette::Window, QColor(22, 22, 22));
+        //        darkPalette.setColor(QPalette::WindowText, Qt::white);
+        //        darkPalette.setColor(QPalette::Base, QColor(22, 22, 22));
+        //        darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
+        //        darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+        //        darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+        //        darkPalette.setColor(QPalette::Text, Qt::white);
+        //        darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+        //        darkPalette.setColor(QPalette::ButtonText, Qt::white);
+        //        darkPalette.setColor(QPalette::BrightText, Qt::red);
+        //        darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+        //        darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+        //        darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+        //        QApplication::setPalette(darkPalette);
+        ui->frame->setStyleSheet("background-color:white");
         isDark = true;
     }
 

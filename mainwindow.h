@@ -19,6 +19,7 @@ public:
     MainWindow(QWidget* parent = nullptr);
     //widget
     TableModel *tableModel = new TableModel(this);
+    void style();
 
 public slots:
     void createFolder(const QString &folderPath);
