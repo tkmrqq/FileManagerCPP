@@ -21,6 +21,7 @@ SOURCES += \
     flowlayout.cpp \
     main.cpp \
     mainwindow.cpp \
+    searchwindow.cpp \
     tablemodel.cpp
 
 HEADERS += \
@@ -28,10 +29,12 @@ HEADERS += \
     fileinfowindow.h \
     flowlayout.h \
     mainwindow.h \
+    searchwindow.h \
     tablemodel.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    searchwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

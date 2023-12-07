@@ -989,7 +989,7 @@ height: 16px;
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="searchButton">
            <property name="text">
             <string/>
            </property>
@@ -1011,7 +1011,11 @@ height: 16px;
             <string notr="true">color: white;</string>
            </property>
            <property name="text">
-            <string>theme</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="WindowIcon.qrc">
+             <normaloff>:/new/windowIcon/Resources/Icons/light.svg</normaloff>:/new/windowIcon/Resources/Icons/light.svg</iconset>
            </property>
            <property name="iconSize">
             <size>

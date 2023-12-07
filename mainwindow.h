@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "flowlayout.h"
+#include "searchwindow.h"
 #include "tablemodel.h"
 #include <QMainWindow>
 #include <QtWidgets>
@@ -24,6 +24,11 @@ public:
 public slots:
     void createFolder(const QString &folderPath);
 
+    void onButtonClicked(QString folderName);
+    void onCustomContextMenuRequested(const QPoint &pos);
+    void showFolderContextMenu(const QString &folderPath, const QPoint &pos);
+    void showEmptySpaceContextMenu(const QPoint &pos);
+
 private slots:
 
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
@@ -38,16 +43,23 @@ private slots:
     void on_backButton_clicked();
     void on_prevButton_clicked();
     void on_themeButton_clicked();
-    void onButtonClicked(QString folderName);
+    void on_searchButton_clicked();
+    //    void onButtonClicked(QString folderName); //moved to public slots (undo if needed)
     void handleDoubleClick(QString folderName);
     void onDirectoryChanged();
+    //render
     void renderDir(const QString &dirPath);
+    void render(QStringList files, QDir directory);
+    void renderSearch(QStringList files);
     void clearDir();
-    void to_disk();
+
+    void to_disk(int x);
     void to_fav(QString favPath);
     void getDriveList();
     void propertiesButton(QString folderName);
+
     //    void updateGrid();
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -58,9 +70,7 @@ private:
     QString currentPath;
     QString folderName;
     QString prevPath;
-    FlowLayout *flowLayout;
+    SearchWindow *searchWindow;
 };
-
-
 
 #endif // MAINWINDOW_H
