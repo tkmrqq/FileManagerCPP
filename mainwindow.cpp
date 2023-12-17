@@ -460,19 +460,79 @@ void MainWindow::showContextMenu(const QString &transPath)
     QMenu contextMenu(this);
     QAction *deleteAction = new QAction("Удалить", this);
     QAction *properties = new QAction("Свойства", this);
+    QAction *copy = contextMenu.addAction("Скопировать");
+    QAction *paste = contextMenu.addAction("Вставить");
+    QAction *cut = contextMenu.addAction("Вырезать");
+
+    contextMenu.setStyleSheet("QMenu:item{background-color: #151515; color: white;} "
+                              "QMenu:item:selected {color: #6e6e6e}");
 
     connect(deleteAction, &QAction::triggered, [=]() { actionDelete(transPath); });
     connect(properties, &QAction::triggered, [=]() { propertiesButton(transPath); });
-
-    QAction *copy = contextMenu.addAction("Скопировать");
-    QAction *paste = contextMenu.addAction("Вырезать");
-    QAction *cut = contextMenu.addAction("Вставить");
+    connect(copy, &QAction::triggered, [=]() { actionCopy(transPath); });
+    connect(paste, &QAction::triggered, [=]() { actionPaste(); });
 
     contextMenu.addAction(properties);
     contextMenu.addAction(deleteAction);
 
     QPoint globalPos = QCursor::pos();
     contextMenu.exec(globalPos);
+}
+
+void MainWindow::actionCopy(const QString &source)
+{
+    QMimeData *mimeData = new QMimeData;
+    QList<QUrl> urls;
+    urls.append(QUrl::fromLocalFile(source));
+    mimeData->setUrls(urls);
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setMimeData(mimeData);
+    qDebug() << "File copied";
+}
+
+void MainWindow::copyToDestination(const QString &sourcePath)
+{
+    QFileInfo sourceFileInfo(sourcePath);
+    if (sourceFileInfo.isFile()) {
+        QString fileName = sourceFileInfo.fileName();
+        QString destinationPathWithFileName = currentPath + QDir::separator() + fileName;
+
+        if (QFile::copy(sourcePath, destinationPathWithFileName)) {
+            qDebug() << "Файл успешно скопирован.";
+        } else {
+            qDebug() << "Не удалось скопировать файл.";
+        }
+    } else if (sourceFileInfo.isDir()) {
+        QDir sourceDir(sourcePath);
+        QString destinationDirPath = currentPath + QDir::separator() + sourceDir.dirName();
+
+        if (QDir().mkpath(destinationDirPath) && QFile::copy(sourcePath, destinationDirPath)) {
+            qDebug() << "Директория успешно скопирована.";
+        } else {
+            qDebug() << "Не удалось скопировать директорию.";
+        }
+    }
+}
+
+void MainWindow::actionPaste()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+
+    if (mimeData->hasUrls()) {
+        QList<QUrl> urlList = mimeData->urls();
+        foreach (QUrl url, urlList) {
+            QString sourcePath = url.toLocalFile();
+
+            // Теперь у вас есть исходный путь, и вы можете выполнить операцию вставки
+            // Например, вызвать вашу функцию copyToDestination(sourcePath, currentPath)
+            qDebug() << "pasting";
+            copyToDestination(sourcePath);
+            clearDir();
+            renderDir(currentPath);
+        }
+    }
 }
 
 void MainWindow::actionDelete(const QString &path)
