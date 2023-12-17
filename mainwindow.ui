@@ -9,20 +9,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1120</width>
-    <height>600</height>
+    <width>1280</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1120</width>
-    <height>600</height>
+    <width>3840</width>
+    <height>2560</height>
    </size>
   </property>
   <property name="palette">
@@ -915,7 +915,7 @@ height: 16px;
           <number>0</number>
          </property>
          <property name="leftMargin">
-          <number>0</number>
+          <number>16</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -935,6 +935,12 @@ height: 16px;
             <iconset resource="WindowIcon.qrc">
              <normaloff>:/new/windowIcon/Resources/Icons/arrowBack.svg</normaloff>:/new/windowIcon/Resources/Icons/arrowBack.svg</iconset>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>24</width>
+             <height>24</height>
+            </size>
+           </property>
           </widget>
          </item>
          <item>
@@ -948,8 +954,8 @@ height: 16px;
            </property>
            <property name="iconSize">
             <size>
-             <width>20</width>
-             <height>16</height>
+             <width>24</width>
+             <height>24</height>
             </size>
            </property>
           </widget>
@@ -999,8 +1005,8 @@ height: 16px;
            </property>
            <property name="iconSize">
             <size>
-             <width>20</width>
-             <height>20</height>
+             <width>24</width>
+             <height>24</height>
             </size>
            </property>
           </widget>
@@ -1019,8 +1025,8 @@ height: 16px;
            </property>
            <property name="iconSize">
             <size>
-             <width>20</width>
-             <height>20</height>
+             <width>24</width>
+             <height>24</height>
             </size>
            </property>
           </widget>
@@ -1097,8 +1103,8 @@ QScrollBar::sub-line:vertical {
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>978</width>
-              <height>550</height>
+              <width>1118</width>
+              <height>664</height>
              </rect>
             </property>
            </widget>
@@ -1116,8 +1122,8 @@ QScrollBar::sub-line:vertical {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1120</width>
-     <height>20</height>
+     <width>1280</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

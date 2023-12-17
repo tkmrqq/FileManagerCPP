@@ -39,16 +39,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical{ background: none;}");
 
     //ContextMenu logic
-    //    contextMenu = new QMenu(this);
+    contextMenu = new QMenu(this);
     //    flowLayout = new FlowLayout;
 
-    //    QAction *view = contextMenu->addAction("View");
+    QAction *view = contextMenu->addAction("View");
     //    QAction *sort = contextMenu->addAction("Sort");
     //    QAction *update = contextMenu->addAction("Update");
     //    QAction *create = contextMenu->addAction("Create");
     //    QAction *properties = contextMenu->addAction("Properties");
 
-    //    connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
+    connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
     //    connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
     //    connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
     //    connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
@@ -112,10 +112,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->themeButton, &QPushButton::clicked, this, &MainWindow::on_themeButton_clicked);
 
-    connect(ui->folderWidget,
-            &QWidget::customContextMenuRequested,
-            this,
-            &MainWindow::onCustomContextMenuRequested);
     connect(ui->searchButton, &QPushButton::clicked, this, &MainWindow::on_searchButton_clicked);
 }
 
@@ -169,17 +165,15 @@ void MainWindow::on_prevButton_clicked()
 
 void MainWindow::onButtonClicked(QString folderName)
 {
-    // Запускаем таймер для ожидания второго щелчка
     //    doubleClickTimer->start(QApplication::doubleClickInterval());
     QFileInfo fileInfo(folderName);
+    //    QPushButton *senderButton = qobject_cast<QPushButton *>(sender());
 
-    if (fileInfo.isDir()) {
-        // Это папка - открываем ее
+    if (fileInfo.isDir()) { //open folder
         clearDir();
         currentPath = folderName;
         renderDir(folderName);
-    } else if (fileInfo.isFile()) {
-        // Это файл - открываем его в соответствующем приложении
+    } else if (fileInfo.isFile()) { //open file
         QDesktopServices::openUrl(QUrl::fromLocalFile(folderName));
     }
 
@@ -248,10 +242,21 @@ void MainWindow::onDirectoryChanged()
 void MainWindow::renderDir(const QString &dirPath)
 {
     ui->pathLabel->setText(dirPath);
+
+    QLabel *label = ui->pathLabel;
+    connect(label, &QLabel::linkHovered, [=](const QString &) {
+        QLineEdit *lineEdit = new QLineEdit(label->text());
+
+        ui->verticalLayout_4->replaceWidget(label, lineEdit);
+        qDebug() << "aboba";
+
+        // Удаляем метку из памяти
+        label->deleteLater();
+    });
+
     currentPath = dirPath;
     QDir directory(dirPath);
     QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-    // Создаем сетку
     //    renderSearch(files);
     render(files, directory);
 }
@@ -266,12 +271,16 @@ void MainWindow::render(QStringList files, QDir directory)
         QFileInfo fileInfo(directory.filePath(filename));
         QFileIconProvider iconProvider;
         QVBoxLayout *folder = new QVBoxLayout;
+        folder->setAlignment(Qt::AlignLeft);
         if (fileInfo.isDir()) {
             button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
-        } else {
-            //            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
+        } else {        
             QIcon fileIcon = iconProvider.icon(fileInfo);
-            button->setIcon(fileIcon);
+            if (!fileIcon.isNull()) {
+                button->setIcon(fileIcon);
+            } else {
+                button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
+            }
         }
         button->setIconSize(QSize(64, 64));
         QLabel *label = new QLabel(QFileInfo(filename).fileName());
@@ -283,10 +292,18 @@ void MainWindow::render(QStringList files, QDir directory)
         label->setStyleSheet("color: white");
         button->setStyleSheet("QPushButton {background-color: transparent} QPushButton:pressed "
                               "{background-color: #131313; border-radius: 8px}");
-        folder->addWidget(button);
-        folder->addWidget(label);
+        button->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(button, &QPushButton::customContextMenuRequested, [=]() {
+            showContextMenu(transPath);
+        });
+        //        folder->addWidget(button);
+        //        folder->addWidget(label);
+        gridLayout->setAlignment(button, Qt::AlignTop | Qt::AlignHCenter);
+        gridLayout->setAlignment(label, Qt::AlignTop | Qt::AlignHCenter);
+
         gridLayout->addWidget(button, row, col);
         gridLayout->addWidget(label, row + 1, col);
+        //        gridLayout->addLayout(folder, row, col);
 
         col++;
         if (col > 5) {
@@ -299,17 +316,16 @@ void MainWindow::render(QStringList files, QDir directory)
 
 void MainWindow::renderSearch(QStringList files)
 {
-    clearDir();
     QVBoxLayout *verticalLayout = new QVBoxLayout;
     foreach (const QString &filename, files) {
         QHBoxLayout *horizontalLayout = new QHBoxLayout;
         QPushButton *button = new QPushButton(this);
         button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
         button->setIconSize(QSize(64, 64));
-        QLabel *label = new QLabel(filename);
-        label->setStyleSheet("color: white");
+        //        QLabel *label = new QLabel(filename);
+        //        label->setStyleSheet("color: white");
         horizontalLayout->addWidget(button);
-        horizontalLayout->addWidget(label);
+        //        horizontalLayout->addWidget(label);
         verticalLayout->addLayout(horizontalLayout);
         horizontalLayout->setAlignment(Qt::AlignLeft);
     }
@@ -439,35 +455,67 @@ void MainWindow::propertiesButton(QString folderName)
     infoWindow->exec();
 }
 
-void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
+void MainWindow::showContextMenu(const QString &transPath)
 {
-    qDebug() << "Aboba";
-    QWidget *widget = ui->folderWidget->childAt(pos);
+    QMenu contextMenu(this);
+    QAction *deleteAction = new QAction("Удалить", this);
+    QAction *properties = new QAction("Свойства", this);
 
-    if (widget) {
-        QString folderPath = static_cast<QPushButton *>(widget)->property("FolderPath").toString();
-        showFolderContextMenu(folderPath, pos);
-    } else {
-        showEmptySpaceContextMenu(pos);
+    connect(deleteAction, &QAction::triggered, [=]() { actionDelete(transPath); });
+    connect(properties, &QAction::triggered, [=]() { propertiesButton(transPath); });
+
+    QAction *copy = contextMenu.addAction("Скопировать");
+    QAction *paste = contextMenu.addAction("Вырезать");
+    QAction *cut = contextMenu.addAction("Вставить");
+
+    contextMenu.addAction(properties);
+    contextMenu.addAction(deleteAction);
+
+    QPoint globalPos = QCursor::pos();
+    contextMenu.exec(globalPos);
+}
+
+void MainWindow::actionDelete(const QString &path)
+{
+    QFileInfo fileInfo(path);
+
+    // Проверяем, является ли элемент файлом
+    if (fileInfo.isFile()) {
+        QFile file(path);
+        qDebug() << path;
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,
+                                      "Подтверждение удаления",
+                                      "Вы уверены, что хотите удалить файл?",
+                                      QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            if (file.remove()) {
+                QMessageBox::information(this, "Успех", "Файл успешно удален.");
+            } else {
+                QMessageBox::warning(this, "Ошибка", "Не удалось удалить файл.");
+            }
+        }
+    } else if (fileInfo.isDir()) {
+        // Элемент является директорией
+        QDir dir(path);
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,
+                                      "Подтверждение удаления",
+                                      "Вы уверены, что хотите удалить директорию и ее содержимое?",
+                                      QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            if (dir.removeRecursively()) {
+                QMessageBox::information(this, "Успех", "Директория успешно удалена.");
+            } else {
+                QMessageBox::warning(this, "Ошибка", "Не удалось удалить директорию.");
+            }
+        }
     }
-}
-
-void MainWindow::showFolderContextMenu(const QString &folderPath, const QPoint &pos)
-{
-    QMenu *folderMenu = new QMenu(this);
-    folderMenu->addAction("Open");
-    folderMenu->addAction("Delete");
-
-    folderMenu->exec(ui->folderWidget->mapToGlobal(pos));
-}
-
-void MainWindow::showEmptySpaceContextMenu(const QPoint &pos)
-{
-    QMenu *emptySpaceMenu = new QMenu(this);
-    emptySpaceMenu->addAction("Create New Folder");
-    emptySpaceMenu->addAction("Paste");
-
-    emptySpaceMenu->exec(ui->folderWidget->mapToGlobal(pos));
+    clearDir();
+    renderDir(currentPath);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

@@ -23,19 +23,15 @@ public:
 
 public slots:
     void createFolder(const QString &folderPath);
-
     void onButtonClicked(QString folderName);
-    void onCustomContextMenuRequested(const QPoint &pos);
-    void showFolderContextMenu(const QString &folderPath, const QPoint &pos);
-    void showEmptySpaceContextMenu(const QPoint &pos);
 
 private slots:
 
+    void showContextMenu(const QString &folder);
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
     void action2Clicked() { qDebug() << "Doing 2 clicked"; }
     void actionCreate() { createFolder(currentPath); }
-
-    void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
+    void actionDelete(const QString &path);
 
     void on_closeButton_clicked();
     void on_maximizeButton_clicked();

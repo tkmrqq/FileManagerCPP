@@ -1,31 +1,14 @@
-QMainWindow {
-    background-color: #222222;
-}
-
 QScrollBar:vertical {
-    border: 2px solid grey;
-    background: #32CC99;
-    width: 15px;
-    margin: 22px 0 22px 0;
+    background-color: transparent;
+    width: 8px;
+    border-radius: 4px;
+    border: 0px;
 }
-
 QScrollBar::handle:vertical {
-    background: white;
-    min-height: 20px;
+   background: #131313;
+   border-radius: 4px;
+   min-height: 10px;
 }
-
-QScrollBar::add-line:vertical {
-    border: 2px solid grey;
-    background: #32CC99;
-    height: 20px;
-    subcontrol-position: bottom;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical {
-    border: 2px solid grey;
-    background: #32CC99;
-    height: 20px;
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical{ background: none;}

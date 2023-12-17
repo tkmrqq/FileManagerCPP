@@ -18,4 +18,7 @@
         <file>Resources/Icons/file.svg</file>
         <file>Resources/Icons/light.svg</file>
     </qresource>
+    <qresource prefix="/style">
+        <file>styles.qss</file>
+    </qresource>
 </RCC>

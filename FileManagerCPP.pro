@@ -44,5 +44,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     WindowIcon.qrc
 
-DISTFILES += \
-    styles.qss
+DISTFILES +=
