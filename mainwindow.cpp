@@ -42,24 +42,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     contextMenu = new QMenu(this);
     //    flowLayout = new FlowLayout;
 
-    QAction *view = contextMenu->addAction("View");
+    QAction *view = contextMenu->addAction("Вид");
+    QAction *update = contextMenu->addAction("Обновить");
+    QAction *create = contextMenu->addAction("Создать");
+    QAction *paste = contextMenu->addAction("Вставить");
     //    QAction *sort = contextMenu->addAction("Sort");
-    //    QAction *update = contextMenu->addAction("Update");
-    //    QAction *create = contextMenu->addAction("Create");
     //    QAction *properties = contextMenu->addAction("Properties");
 
     connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
     //    connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
-    //    connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
-    //    connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
+    connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
+    connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
+    connect(paste, &QAction::triggered, [=]() { actionPaste(); });
     //    connect(properties, &QAction::triggered, [=]() { propertiesButton(folderName); });
 
-    //    setContextMenuPolicy(Qt::CustomContextMenu);
-    //    contextMenu->setStyleSheet("background-color: #FFFFFF; border-radius: 30px;"
-    //                               "color: white;"
-    //                               "QMenu:hover { color: black; }");
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    contextMenu->setStyleSheet("QMenu:item{background-color: #151515; color: white;} "
+                               "QMenu:item:selected {color: #6e6e6e}");
 
-    //    connect(this, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
+    connect(this, &QWidget::customContextMenuRequested, this, [=](const QPoint &pos) {
+        showContextMenu(pos);
+    });
 
     //dirmodel
     QString startPath = QDir::rootPath();
@@ -153,14 +156,12 @@ void MainWindow::on_backButton_clicked()
         prevPath = currentPath;
     }
     currentPath = newPath;
-    clearDir();
-    renderDir(newPath);
+    updateDir(newPath);
 }
 
 void MainWindow::on_prevButton_clicked()
 {
-    clearDir();
-    renderDir(prevPath);
+    updateDir(prevPath);
 }
 
 void MainWindow::onButtonClicked(QString folderName)
@@ -170,9 +171,8 @@ void MainWindow::onButtonClicked(QString folderName)
     //    QPushButton *senderButton = qobject_cast<QPushButton *>(sender());
 
     if (fileInfo.isDir()) { //open folder
-        clearDir();
         currentPath = folderName;
-        renderDir(folderName);
+        updateDir(folderName);
     } else if (fileInfo.isFile()) { //open file
         QDesktopServices::openUrl(QUrl::fromLocalFile(folderName));
     }
@@ -184,60 +184,14 @@ void MainWindow::onButtonClicked(QString folderName)
 void MainWindow::handleDoubleClick(QString folderPath)
 {
     qDebug() << "Folder path in hanlde: " << folderPath;
-    clearDir();
-    renderDir(folderPath);
+    updateDir(folderPath);
 }
 
 void MainWindow::onDirectoryChanged()
 {
-    clearDir();
     QString currDir = QDir::currentPath();
-    renderDir(currDir);
+    updateDir(currDir);
 }
-
-//void MainWindow::renderDir(const QString &dirPath)
-//{
-//    ui->pathLabel->setText(dirPath);
-//    currentPath = dirPath;
-//    QDir directory(dirPath);
-//    QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-//    QVBoxLayout *buttonLayout = new QVBoxLayout();
-
-//    foreach (const QString &filename, files) {
-//        QPushButton *button = new QPushButton;
-//        QFileInfo fileInfo(directory.filePath(filename));
-//        QFileIconProvider iconProvider;
-//        if (fileInfo.isDir()) {
-//            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
-//        } else {
-//            //            button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
-//            QIcon fileIcon = iconProvider.icon(fileInfo);
-//            button->setIcon(fileIcon);
-//        }
-//        button->setIconSize(QSize(64, 64));
-//        QLabel *label = new QLabel(QFileInfo(filename).fileName());
-//        label->setWordWrap(true);
-//        label->setMaximumWidth(64);
-//        QString folderPath = dirPath + '/' + filename;
-//        QString transPath = dirPath + '/' + QFileInfo(filename).filePath();
-//        connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
-//        folderName = transPath;
-//        //        connect(doubleClickTimer, &QTimer::timeout, = {
-//        //            MainWindow::handleDoubleClick(transPath);
-//        //        });
-//        label->setStyleSheet("color: white");
-//        button->setStyleSheet("background-color: transparent");
-//        buttonLayout->addWidget(button);
-//        buttonLayout->addWidget(label);
-//    }
-//    ui->foldersFrame->setLayout(buttonLayout);
-
-//    //        ->setLayout(flowLayout);
-//    //    ui->tableWidget->verticalHeader()->setVisible(false);
-//    //    ui->tableWidget->horizontalHeader()->setVisible(false);
-//    //    ui->tableWidget->setStyleSheet("border-radius: 0px");
-//    qDebug() << "Current path (render):" << currentPath;
-//}
 
 void MainWindow::renderDir(const QString &dirPath)
 {
@@ -322,10 +276,10 @@ void MainWindow::renderSearch(QStringList files)
         QPushButton *button = new QPushButton(this);
         button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
         button->setIconSize(QSize(64, 64));
-        //        QLabel *label = new QLabel(filename);
-        //        label->setStyleSheet("color: white");
+        QLabel *label = new QLabel(filename);
+        label->setStyleSheet("color: white");
         horizontalLayout->addWidget(button);
-        //        horizontalLayout->addWidget(label);
+        horizontalLayout->addWidget(label);
         verticalLayout->addLayout(horizontalLayout);
         horizontalLayout->setAlignment(Qt::AlignLeft);
     }
@@ -355,14 +309,12 @@ void MainWindow::to_disk(int x)
     foreach (const QFileInfo &drive, QDir::drives()) {
         drives << drive.absolutePath();
     }
-    clearDir();
-    renderDir(drives[x]);
+    updateDir(drives[x]);
 }
 
 void MainWindow::to_fav(QString favPath)
 {
-    clearDir();
-    renderDir(favPath);
+    updateDir(favPath);
 }
 
 void MainWindow::getDriveList()
@@ -377,32 +329,6 @@ void MainWindow::getDriveList()
         // Добавляйте кнопку в ваш интерфейс
         ui->frame_4->layout()->addWidget(button);
     }
-}
-
-void MainWindow::createFolder(const QString &folderPath)
-{
-    QDir dir;
-    QInputDialog dialog(this);
-    dialog.setOption(QInputDialog::NoButtons);
-    bool ok;
-
-    QString inputText
-        = dialog.getText(this, "Input name", "Input name of folder:", QLineEdit::Normal, "", &ok);
-
-    if (ok && !inputText.isEmpty()) {
-        qDebug() << "Input ok!";
-    } else {
-        qDebug() << "Input not ok!";
-    }
-
-    QString folder = folderPath + "/" + inputText; //путь до папки, которую надо создать
-
-    if (dir.mkdir(folder)) {
-        qDebug() << "Folder created! Path:" << folder;
-    } else
-        qDebug() << "Folder exists";
-    clearDir();
-    renderDir(currentPath);
 }
 
 void MainWindow::on_searchButton_clicked()
@@ -463,6 +389,7 @@ void MainWindow::showContextMenu(const QString &transPath)
     QAction *copy = contextMenu.addAction("Скопировать");
     QAction *paste = contextMenu.addAction("Вставить");
     QAction *cut = contextMenu.addAction("Вырезать");
+    QAction *rename = contextMenu.addAction("Переименовать");
 
     contextMenu.setStyleSheet("QMenu:item{background-color: #151515; color: white;} "
                               "QMenu:item:selected {color: #6e6e6e}");
@@ -471,6 +398,7 @@ void MainWindow::showContextMenu(const QString &transPath)
     connect(properties, &QAction::triggered, [=]() { propertiesButton(transPath); });
     connect(copy, &QAction::triggered, [=]() { actionCopy(transPath); });
     connect(paste, &QAction::triggered, [=]() { actionPaste(); });
+    connect(rename, &QAction::triggered, [=]() { actionRename(transPath); });
 
     contextMenu.addAction(properties);
     contextMenu.addAction(deleteAction);
@@ -529,8 +457,7 @@ void MainWindow::actionPaste()
             // Например, вызвать вашу функцию copyToDestination(sourcePath, currentPath)
             qDebug() << "pasting";
             copyToDestination(sourcePath);
-            clearDir();
-            renderDir(currentPath);
+            updateDir(currentPath);
         }
     }
 }
@@ -574,8 +501,70 @@ void MainWindow::actionDelete(const QString &path)
             }
         }
     }
-    clearDir();
-    renderDir(currentPath);
+    updateDir(currentPath);
+}
+
+void MainWindow::actionRename(const QString &oldPath)
+{
+    QFileInfo fileInfo(oldPath);
+    QString oldName = fileInfo.fileName();
+
+    // Отображаем диалоговое окно для ввода нового имени
+    QString newName = inputNameDialog();
+
+    // Если пользователь нажал "Отмена" или не ввел новое имя, выходим
+    if (newName.isEmpty()) {
+        qDebug() << "Renaming canceled or no new name entered.";
+        return;
+    }
+
+    // Формируем новый путь с новым именем
+    QString newPath = QDir(fileInfo.absolutePath()).filePath(newName);
+
+    // Переименовываем файл или директорию
+    if (QFile::rename(oldPath, newPath)) {
+        qDebug() << "Successfully renamed to" << newPath;
+    } else {
+        qDebug() << "Failed to rename.";
+    }
+}
+
+void MainWindow::createFolder(const QString &folderPath)
+{
+    QDir dir;
+    QString inputText = inputNameDialog();
+
+    if (inputText.isEmpty()) {
+        qDebug() << "Folder creation canceled or no name entered.";
+        return;
+    }
+
+    QString folder = folderPath + QDir::separator() + inputText;
+
+    if (dir.mkdir(folder)) {
+        qDebug() << "Folder created! Path:" << folder;
+    } else {
+        qDebug() << "Folder exists";
+    }
+
+    updateDir(currentPath);
+}
+
+QString MainWindow::inputNameDialog()
+{
+    QInputDialog dialog(this);
+    dialog.setOption(QInputDialog::NoButtons);
+    bool ok;
+
+    QString inputText = dialog.getText(this, "Rename", "Enter new name:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !inputText.isEmpty()) {
+        qDebug() << "Input ok!";
+        return inputText;
+    } else {
+        qDebug() << "Input not ok!";
+        return QString(); // Возврат пустой строки, если пользователь отменил ввод
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -584,3 +573,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         searchWindow->hide();
     }
 };
+
+void MainWindow::updateDir(const QString &path)
+{
+    clearDir();
+    renderDir(path);
+}

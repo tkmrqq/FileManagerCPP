@@ -29,6 +29,7 @@ public:
         // Добавьте другие виджеты для отображения свойств
         setLayout(layout);
         setWindowTitle("File Information");
+        setFixedSize(200, 200);
     }
 };
 

@@ -22,12 +22,15 @@ public:
     void style();
 
 public slots:
+    QString inputNameDialog();
     void createFolder(const QString &folderPath);
     void onButtonClicked(QString folderName);
 
 private slots:
 
     void showContextMenu(const QString &folder);
+    void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
+    void updateDir(const QString &path);
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
     void action2Clicked() { qDebug() << "Doing 2 clicked"; }
 
@@ -36,6 +39,7 @@ private slots:
     void actionCopy(const QString &source);
     void copyToDestination(const QString &source);
     void actionPaste();
+    void actionRename(const QString &oldpath);
 
     void on_closeButton_clicked();
     void on_maximizeButton_clicked();
