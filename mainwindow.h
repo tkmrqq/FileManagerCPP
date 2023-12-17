@@ -20,6 +20,7 @@ public:
     //widget
     TableModel *tableModel = new TableModel(this);
     void style();
+    enum SortCriterion { Name, Size, Date, Type };
 
 public slots:
     QString inputNameDialog();
@@ -65,12 +66,15 @@ private slots:
     //    void updateGrid();
     void keyPressEvent(QKeyEvent *event);
 
+    void sortFiles(QStringList &files, QDir directory);
+
 private:
     Ui::MainWindow *ui;
     QFileSystemModel *dirmodel;
     QMenu *contextMenu;
     QTimer *doubleClickTimer;
     QFileSystemWatcher *fileSystemWatcher;
+    SortCriterion currentSort;
     QString currentPath;
     QString folderName;
     QString prevPath;

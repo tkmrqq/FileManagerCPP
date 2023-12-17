@@ -40,12 +40,34 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //ContextMenu logic
     contextMenu = new QMenu(this);
-    //    flowLayout = new FlowLayout;
 
     QAction *view = contextMenu->addAction("Вид");
     QAction *update = contextMenu->addAction("Обновить");
     QAction *create = contextMenu->addAction("Создать");
     QAction *paste = contextMenu->addAction("Вставить");
+
+    QMenu *sortMenu = contextMenu->addMenu("Сортировка");
+    QAction *sortByNameAction = sortMenu->addAction("По имени");
+    QAction *sortByTimeAction = sortMenu->addAction("По времени");
+    QAction *sortByTypeAction = sortMenu->addAction("По типу");
+    QAction *sortBySizeAction = sortMenu->addAction("По размеру");
+
+    connect(sortByNameAction, &QAction::triggered, [=]() {
+        currentSort = Name;
+        updateDir(currentPath);
+    });
+    connect(sortByTimeAction, &QAction::triggered, [=]() {
+        currentSort = Date;
+        updateDir(currentPath);
+    });
+    connect(sortByTypeAction, &QAction::triggered, [=]() {
+        currentSort = Type;
+        updateDir(currentPath);
+    });
+    connect(sortBySizeAction, &QAction::triggered, [=]() {
+        currentSort = Size;
+        updateDir(currentPath);
+    });
     //    QAction *sort = contextMenu->addAction("Sort");
     //    QAction *properties = contextMenu->addAction("Properties");
 
@@ -187,6 +209,33 @@ void MainWindow::handleDoubleClick(QString folderPath)
     updateDir(folderPath);
 }
 
+void MainWindow::sortFiles(QStringList &files, QDir directory)
+{
+    std::sort(files.begin(),
+              files.end(),
+              [this, &directory](const QString &file1, const QString &file2) {
+                  QFileInfo fileInfo1(directory.filePath(file1));
+                  QFileInfo fileInfo2(directory.filePath(file2));
+
+                  switch (currentSort) {
+                  case Name:
+                      return fileInfo1.fileName() < fileInfo2.fileName();
+                  case Size:
+                      return fileInfo1.size() < fileInfo2.size();
+                  case Date:
+                      return fileInfo1.lastModified() < fileInfo2.lastModified();
+                  case Type: {
+                      if (fileInfo1.isDir() && !fileInfo2.isDir())
+                          return true;
+                      else if (!fileInfo1.isDir() && fileInfo2.isDir())
+                          return false;
+                  }
+                  default:
+                      return false;
+                  }
+              });
+}
+
 void MainWindow::onDirectoryChanged()
 {
     QString currDir = QDir::currentPath();
@@ -217,6 +266,8 @@ void MainWindow::renderDir(const QString &dirPath)
 
 void MainWindow::render(QStringList files, QDir directory)
 {
+    sortFiles(files, directory);
+
     QGridLayout *gridLayout = new QGridLayout;
     int row = 0;
     int col = 0;
