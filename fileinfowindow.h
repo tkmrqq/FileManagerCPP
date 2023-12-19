@@ -16,20 +16,46 @@ public:
     {
         QFileInfo fileInfo(filePath);
 
-        QLabel *pathLabel = new QLabel("Path: " + fileInfo.absoluteFilePath());
-        QLabel *sizeLabel = new QLabel("Size: " + QString::number(fileInfo.size() / 8 / 1024)
-                                       + " Mb");
-        QLabel *createdLabel = new QLabel("Created: " + fileInfo.birthTime().toString());
-        // Добавьте другие свойства, которые вы хотите отобразить
-
         QVBoxLayout *layout = new QVBoxLayout;
-        layout->addWidget(pathLabel);
-        layout->addWidget(sizeLabel);
-        layout->addWidget(createdLabel);
-        // Добавьте другие виджеты для отображения свойств
+        addLabel(layout, "Path", fileInfo.absoluteFilePath());
+        addLabel(layout, "Size", formatSize(fileInfo.size()));
+        addLabel(layout, "Created", fileInfo.birthTime().toString());
+        addLabel(layout, "Last Modified", fileInfo.lastModified().toString());
+        addLabel(layout, "Type", fileType(fileInfo));
+        addLabel(layout, "Is Directory", fileInfo.isDir() ? "Yes" : "No");
+
         setLayout(layout);
         setWindowTitle("File Information");
-        setFixedSize(200, 200);
+        setFixedSize(300, 200);
+    }
+
+    QString formatSize(qint64 sizeInBytes)
+    {
+        const qint64 kb = 1024;
+        const qint64 mb = kb * 1024;
+        const qint64 gb = mb * 1024;
+
+        if (sizeInBytes < kb) {
+            return QString::number(sizeInBytes) + " Bytes";
+        } else if (sizeInBytes < mb) {
+            return QString::number(sizeInBytes / kb) + " KB";
+        } else if (sizeInBytes < gb) {
+            return QString::number(sizeInBytes / mb) + " MB";
+        } else {
+            return QString::number(sizeInBytes / gb) + " GB";
+        }
+    }
+
+    QString fileType(const QFileInfo &fileInfo)
+    {
+        return fileInfo.isDir() ? "Directory" : fileInfo.suffix();
+    }
+
+private:
+    void addLabel(QVBoxLayout *layout, const QString &labelText, const QString &infoText)
+    {
+        QLabel *label = new QLabel(labelText + ": " + infoText);
+        layout->addWidget(label);
     }
 };
 

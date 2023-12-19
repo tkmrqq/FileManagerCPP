@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "fileinfolist.h"
 #include "fileinfowindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
@@ -11,8 +10,6 @@
 #include <QPalette>
 #include <QScrollArea>
 #include <QtCore>
-
-void MainWindow::style() {}
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -54,27 +51,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(sortByNameAction, &QAction::triggered, [=]() {
         currentSort = Name;
-        updateDir(currentPath);
+        updateDir();
     });
     connect(sortByTimeAction, &QAction::triggered, [=]() {
         currentSort = Date;
-        updateDir(currentPath);
+        updateDir();
     });
     connect(sortByTypeAction, &QAction::triggered, [=]() {
         currentSort = Type;
-        updateDir(currentPath);
+        updateDir();
     });
     connect(sortBySizeAction, &QAction::triggered, [=]() {
         currentSort = Size;
-        updateDir(currentPath);
+        updateDir();
     });
     //    QAction *sort = contextMenu->addAction("Sort");
     //    QAction *properties = contextMenu->addAction("Properties");
 
     connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
     //    connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
-    connect(update, &QAction::triggered, this, &MainWindow::action2Clicked);
     connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
+    connect(update, &QAction::triggered, [=]() { updateDir(); });
     connect(paste, &QAction::triggered, [=]() { actionPaste(); });
     //    connect(properties, &QAction::triggered, [=]() { propertiesButton(folderName); });
 
@@ -102,13 +99,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     renderDir(startPath);
     //getDriveList();
 
-    //path change
-    fileSystemWatcher = new QFileSystemWatcher(this);
-    connect(fileSystemWatcher,
-            &QFileSystemWatcher::directoryChanged,
-            this,
-            &MainWindow::onDirectoryChanged);
-
     //prev dir handle
     //    connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::on_backButton_clicked);
     connect(ui->nextButton, &QPushButton::clicked, this, &MainWindow::on_prevButton_clicked);
@@ -135,9 +125,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->Disk1, &QPushButton::clicked, [=]() { to_disk(0); });
     connect(ui->Disk2, &QPushButton::clicked, [=]() { to_disk(1); });
 
-    connect(ui->themeButton, &QPushButton::clicked, this, &MainWindow::on_themeButton_clicked);
+    //    connect(ui->themeButton, &QPushButton::clicked, this, &MainWindow::on_themeButton_clicked);
 
-    connect(ui->searchButton, &QPushButton::clicked, this, &MainWindow::on_searchButton_clicked);
+    //    connect(ui->searchButton, &QPushButton::clicked, this, &MainWindow::on_searchButton_clicked);
 }
 
 MainWindow::~MainWindow()
@@ -251,7 +241,6 @@ void MainWindow::renderDir(const QString &dirPath)
         QLineEdit *lineEdit = new QLineEdit(label->text());
 
         ui->verticalLayout_4->replaceWidget(label, lineEdit);
-        qDebug() << "aboba";
 
         // Удаляем метку из памяти
         label->deleteLater();
@@ -271,10 +260,10 @@ void MainWindow::render(QStringList files, QDir directory)
     QGridLayout *gridLayout = new QGridLayout;
     int row = 0;
     int col = 0;
+    QFileIconProvider iconProvider;
     foreach (const QString &filename, files) {
         QPushButton *button = new QPushButton(this);
         QFileInfo fileInfo(directory.filePath(filename));
-        QFileIconProvider iconProvider;
         QVBoxLayout *folder = new QVBoxLayout;
         folder->setAlignment(Qt::AlignLeft);
         if (fileInfo.isDir()) {
@@ -337,6 +326,14 @@ void MainWindow::renderSearch(QStringList files)
     ui->folderWidget->setLayout(verticalLayout);
 }
 
+void MainWindow::clearSearch()
+{
+    QWidget *widget;
+    while ((widget = ui->folderWidget->findChild<QWidget *>()) != nullptr) {
+        delete widget;
+    }
+}
+
 void MainWindow::clearDir()
 {
     QLayout *layout = ui->folderWidget->layout();
@@ -390,40 +387,6 @@ void MainWindow::on_searchButton_clicked()
     searchWindow->setDirectory(currentPath);
     QStringList foundedFiles = searchWindow->getFilesList();
     renderSearch(foundedFiles);
-}
-
-void MainWindow::on_themeButton_clicked()
-{
-    static bool isDark = false;
-    if (isDark) {
-        //        QApplication::setPalette(QApplication::style()->standardPalette());
-        ui->frame->setStyleSheet("background-color:#101010");
-        isDark = false;
-    } else {
-        //        QApplication::setStyle(QStyleFactory::create("Fusion"));
-        //        QPalette darkPalette;
-        //        darkPalette.setColor(QPalette::Window, QColor(22, 22, 22));
-        //        darkPalette.setColor(QPalette::WindowText, Qt::white);
-        //        darkPalette.setColor(QPalette::Base, QColor(22, 22, 22));
-        //        darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-        //        darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-        //        darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-        //        darkPalette.setColor(QPalette::Text, Qt::white);
-        //        darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-        //        darkPalette.setColor(QPalette::ButtonText, Qt::white);
-        //        darkPalette.setColor(QPalette::BrightText, Qt::red);
-        //        darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-        //        darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-        //        darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-        //        QApplication::setPalette(darkPalette);
-        ui->frame->setStyleSheet("background-color:white");
-        isDark = true;
-    }
-
-    // Перерисовываем все виджеты
-    qApp->changeOverrideCursor(QCursor(Qt::WaitCursor));
-    qApp->processEvents();
-    qApp->setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::propertiesButton(QString folderName)
@@ -503,12 +466,9 @@ void MainWindow::actionPaste()
         QList<QUrl> urlList = mimeData->urls();
         foreach (QUrl url, urlList) {
             QString sourcePath = url.toLocalFile();
-
-            // Теперь у вас есть исходный путь, и вы можете выполнить операцию вставки
-            // Например, вызвать вашу функцию copyToDestination(sourcePath, currentPath)
             qDebug() << "pasting";
             copyToDestination(sourcePath);
-            updateDir(currentPath);
+            updateDir();
         }
     }
 }
@@ -516,8 +476,6 @@ void MainWindow::actionPaste()
 void MainWindow::actionDelete(const QString &path)
 {
     QFileInfo fileInfo(path);
-
-    // Проверяем, является ли элемент файлом
     if (fileInfo.isFile()) {
         QFile file(path);
         qDebug() << path;
@@ -552,7 +510,7 @@ void MainWindow::actionDelete(const QString &path)
             }
         }
     }
-    updateDir(currentPath);
+    updateDir();
 }
 
 void MainWindow::actionRename(const QString &oldPath)
@@ -560,10 +518,8 @@ void MainWindow::actionRename(const QString &oldPath)
     QFileInfo fileInfo(oldPath);
     QString oldName = fileInfo.fileName();
 
-    // Отображаем диалоговое окно для ввода нового имени
     QString newName = inputNameDialog();
 
-    // Если пользователь нажал "Отмена" или не ввел новое имя, выходим
     if (newName.isEmpty()) {
         qDebug() << "Renaming canceled or no new name entered.";
         return;
@@ -598,7 +554,7 @@ void MainWindow::createFolder(const QString &folderPath)
         qDebug() << "Folder exists";
     }
 
-    updateDir(currentPath);
+    updateDir();
 }
 
 QString MainWindow::inputNameDialog()
@@ -621,7 +577,10 @@ QString MainWindow::inputNameDialog()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape && searchWindow->isVisible()) {
+        clearSearch();
         searchWindow->hide();
+        clearDir();
+        renderDir(currentPath);
     }
 };
 
@@ -629,4 +588,27 @@ void MainWindow::updateDir(const QString &path)
 {
     clearDir();
     renderDir(path);
+}
+
+void MainWindow::updateDir()
+{
+    clearDir();
+    renderDir(currentPath);
+}
+
+void MainWindow::on_themeButton_clicked()
+{
+    static bool isDark = false;
+    if (isDark) {
+        ui->frame->setStyleSheet("background-color:#151515");
+        isDark = false;
+    } else {
+        ui->frame->setStyleSheet("background-color:white; color: black");
+        isDark = true;
+    }
+
+    // Перерисовываем все виджеты
+    qApp->changeOverrideCursor(QCursor(Qt::WaitCursor));
+    qApp->processEvents();
+    qApp->setOverrideCursor(QCursor(Qt::ArrowCursor));
 }

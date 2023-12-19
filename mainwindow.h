@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "searchwindow.h"
-#include "tablemodel.h"
+//#include "tablemodel.h"
 #include <QMainWindow>
 #include <QtWidgets>
 
@@ -18,8 +18,7 @@ public:
     ~MainWindow();
     MainWindow(QWidget* parent = nullptr);
     //widget
-    TableModel *tableModel = new TableModel(this);
-    void style();
+    //    TableModel *tableModel = new TableModel(this);
     enum SortCriterion { Name, Size, Date, Type };
 
 public slots:
@@ -32,9 +31,8 @@ private slots:
     void showContextMenu(const QString &folder);
     void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
     void updateDir(const QString &path);
+    void updateDir();
     void action1Clicked() { qDebug() << "Doing 1 clicked"; }
-    void action2Clicked() { qDebug() << "Doing 2 clicked"; }
-
     void actionCreate() { createFolder(currentPath); }
     void actionDelete(const QString &path);
     void actionCopy(const QString &source);
@@ -57,6 +55,7 @@ private slots:
     void render(QStringList files, QDir directory);
     void renderSearch(QStringList files);
     void clearDir();
+    void clearSearch();
 
     void to_disk(int x);
     void to_fav(QString favPath);
@@ -70,10 +69,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QFileSystemModel *dirmodel;
+    //    QFileSystemModel *dirmodel;
+    //    QTimer *doubleClickTimer;
+    //    QFileSystemWatcher *fileSystemWatcher;
     QMenu *contextMenu;
-    QTimer *doubleClickTimer;
-    QFileSystemWatcher *fileSystemWatcher;
     SortCriterion currentSort;
     QString currentPath;
     QString folderName;

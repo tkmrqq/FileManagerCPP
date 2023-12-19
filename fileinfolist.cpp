@@ -22,3 +22,11 @@ int FileInfoList::rowCount(const QModelIndex &parent) const
         return 0;
     return fileList.size();
 }
+
+QVariant FileInfoList::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        return header.value(section);
+    }
+    return QVariant();
+}
