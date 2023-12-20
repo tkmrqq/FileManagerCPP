@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "favoriteswidget.h"
 #include "searchwindow.h"
 //#include "tablemodel.h"
 #include <QMainWindow>
@@ -78,6 +79,7 @@ private:
     QString folderName;
     QString prevPath;
     SearchWindow *searchWindow;
+    FavoritesWidget *favoritesWidget;
 };
 
 #endif // MAINWINDOW_H

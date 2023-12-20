@@ -521,7 +521,7 @@ background-color: transparent;
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,2">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,2,2">
        <property name="spacing">
         <number>20</number>
        </property>
@@ -632,6 +632,13 @@ background-color: transparent;
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="favLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
        </item>
        <item alignment="Qt::AlignLeft">
         <widget class="QFrame" name="frame_4">
@@ -817,7 +824,7 @@ QLabel{
            <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>0</number>
+           <number>40</number>
           </property>
           <item>
            <widget class="QLabel" name="Locations">
@@ -1116,7 +1123,7 @@ QScrollBar::sub-line:vertical {
               <x>0</x>
               <y>0</y>
               <width>1118</width>
-              <height>665</height>
+              <height>664</height>
              </rect>
             </property>
            </widget>
@@ -1135,7 +1142,7 @@ QScrollBar::sub-line:vertical {
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

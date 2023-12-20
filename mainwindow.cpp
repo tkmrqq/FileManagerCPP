@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
     searchWindow = new SearchWindow(this);
+    favoritesWidget = new FavoritesWidget(this);
+    ui->favLayout->addWidget(favoritesWidget);
     searchWindow->hide();
     //    ui->closeButton->setStyleSheet("QPushButton{background: transparent;}");
     //    this->setWindowFlag(Qt::FramelessWindowHint);
@@ -298,7 +300,7 @@ void MainWindow::render(QStringList files, QDir directory)
         gridLayout->addWidget(button, row, col);
         gridLayout->addWidget(label, row + 1, col);
         //        gridLayout->addLayout(folder, row, col);
-
+        gridLayout->SetFixedSize;
         col++;
         if (col > 5) {
             col = 0;
@@ -323,6 +325,7 @@ void MainWindow::renderSearch(QStringList files)
         verticalLayout->addLayout(horizontalLayout);
         horizontalLayout->setAlignment(Qt::AlignLeft);
     }
+    verticalLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     ui->folderWidget->setLayout(verticalLayout);
 }
 
@@ -579,6 +582,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape && searchWindow->isVisible()) {
         clearSearch();
         searchWindow->hide();
+        searchWindow->clearFounded();
         clearDir();
         renderDir(currentPath);
     }

@@ -28,8 +28,15 @@ void SearchWindow::setDirectory(const QString &dir)
     this->currentDir = dir;
 }
 
-void SearchWindow::searchFiles(const QString &directoryPath, const QString &targetFileName)
+void SearchWindow::searchFiles(const QString &directoryPath, const QString &targetSubstring)
 {
+    foundFiles.clear(); // Очищаем найденные файлы перед новым поиском
+
+    if (directoryPath.isEmpty() || targetSubstring.isEmpty()) {
+        qDebug() << "Указаны неверные параметры для поиска.";
+        return;
+    }
+
     QDir directory(directoryPath);
 
     if (!directory.exists()) {
@@ -38,24 +45,33 @@ void SearchWindow::searchFiles(const QString &directoryPath, const QString &targ
     }
 
     QStringList filters;
-    filters << targetFileName;
+    filters << "*"; // Устанавливаем фильтр для всех файлов и папок
 
     directory.setNameFilters(filters);
-    directory.setFilter(QDir::Files | QDir::NoSymLinks | QDir::Dirs);
+    directory.setFilter(QDir::Files | QDir::NoSymLinks | QDir::Dirs | QDir::NoDotAndDotDot);
 
     QFileInfoList fileList = directory.entryInfoList();
 
     if (fileList.isEmpty()) {
-        qDebug() << "Файлы с именем" << targetFileName << "не найдены в каталоге" << directoryPath;
+        qDebug() << "Файлы и папки с подстрокой" << targetSubstring << "не найдены в каталоге"
+                 << directoryPath;
     } else {
-        qDebug() << "Найденные файлы с именем" << targetFileName << "в каталоге" << directoryPath
-                 << ":";
+        qDebug() << "Найденные файлы и папки с подстрокой" << targetSubstring << "в каталоге"
+                 << directoryPath << ":";
 
         for (const QFileInfo &fileInfo : fileList) {
-            foundFiles << fileInfo.filePath();
-            qDebug() << fileInfo.filePath();
+            // Проверяем, содержится ли подстрока в имени файла или папки
+            if (fileInfo.fileName().contains(targetSubstring, Qt::CaseInsensitive)) {
+                foundFiles << fileInfo.filePath();
+                qDebug() << fileInfo.filePath();
+            }
         }
     }
+}
+
+void SearchWindow::clearFounded()
+{
+    foundFiles.clear();
 }
 
 QStringList SearchWindow::getFilesList()

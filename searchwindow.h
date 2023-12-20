@@ -20,6 +20,7 @@ public slots:
     void setDirectory(const QString &dir);
     QStringList getFilesList();
     void searchFiles(const QString &directoryPath, const QString &targetFileName);
+    void clearFounded();
 
 private:
     Ui::SearchWindow *ui;

@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    favoriteswidget.cpp \
     fileinfolist.cpp \
     flowlayout.cpp \
     main.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
     tablemodel.cpp
 
 HEADERS += \
+    favoriteswidget.h \
     fileinfolist.h \
     fileinfowindow.h \
     flowlayout.h \
