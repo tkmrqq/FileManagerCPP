@@ -591,6 +591,12 @@ background-color: transparent;
              <iconset resource="WindowIcon.qrc">
               <normaloff>:/new/windowIcon/Resources/Icons/close.svg</normaloff>:/new/windowIcon/Resources/Icons/close.svg</iconset>
             </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -611,6 +617,12 @@ background-color: transparent;
              <iconset resource="WindowIcon.qrc">
               <normaloff>:/new/windowIcon/Resources/Icons/maximize.svg</normaloff>:/new/windowIcon/Resources/Icons/maximize.svg</iconset>
             </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -627,6 +639,12 @@ background-color: transparent;
             <property name="icon">
              <iconset resource="WindowIcon.qrc">
               <normaloff>:/new/windowIcon/Resources/Icons/minimize.svg</normaloff>:/new/windowIcon/Resources/Icons/minimize.svg</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -827,68 +845,72 @@ QLabel{
            <number>40</number>
           </property>
           <item>
-           <widget class="QLabel" name="Locations">
-            <property name="font">
-             <font>
-              <family>Inter</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Locations</string>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignTop">
-           <widget class="QPushButton" name="Disk1">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="font">
-             <font>
-              <family>Inter Medium</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>Disk 1</string>
-            </property>
-            <property name="icon">
-             <iconset resource="WindowIcon.qrc">
-              <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignTop">
-           <widget class="QPushButton" name="Disk2">
-            <property name="font">
-             <font>
-              <family>Inter Medium</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>Disk 2</string>
-            </property>
-            <property name="icon">
-             <iconset resource="WindowIcon.qrc">
-              <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="Disk3">
-            <property name="font">
-             <font>
-              <family>Inter Medium</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>Disk 3</string>
-            </property>
-            <property name="icon">
-             <iconset resource="WindowIcon.qrc">
-              <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="layout">
+            <item>
+             <widget class="QLabel" name="Locations">
+              <property name="font">
+               <font>
+                <family>Inter</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Locations</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Disk1">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <family>Inter Medium</family>
+               </font>
+              </property>
+              <property name="text">
+               <string>Disk 1</string>
+              </property>
+              <property name="icon">
+               <iconset resource="WindowIcon.qrc">
+                <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Disk2">
+              <property name="font">
+               <font>
+                <family>Inter Medium</family>
+               </font>
+              </property>
+              <property name="text">
+               <string>Disk 2</string>
+              </property>
+              <property name="icon">
+               <iconset resource="WindowIcon.qrc">
+                <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Disk3">
+              <property name="font">
+               <font>
+                <family>Inter Medium</family>
+               </font>
+              </property>
+              <property name="text">
+               <string>Disk 3</string>
+              </property>
+              <property name="icon">
+               <iconset resource="WindowIcon.qrc">
+                <normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</normaloff>:/new/windowIcon/Resources/Icons/hardDrive.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -1123,7 +1145,7 @@ QScrollBar::sub-line:vertical {
               <x>0</x>
               <y>0</y>
               <width>1118</width>
-              <height>664</height>
+              <height>665</height>
              </rect>
             </property>
            </widget>
@@ -1142,7 +1164,7 @@ QScrollBar::sub-line:vertical {
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

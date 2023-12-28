@@ -11,6 +11,11 @@ SearchWindow::SearchWindow(QWidget *parent) : QWidget(parent), ui(new Ui::Search
             SIGNAL(textChanged(const QString &)),
             this,
             SLOT(onTextChanged(const QString &)));
+
+    //    connect(ui->searchButton, &QPushButton::clicked, this, &SearchWindow::on_searchButton_clicked);
+
+    ui->searchButton->setStyleSheet(
+        "QPushButton:pressed {background-color: #303030; border-radius: 8px}");
 }
 
 SearchWindow::~SearchWindow()
@@ -77,4 +82,12 @@ void SearchWindow::clearFounded()
 QStringList SearchWindow::getFilesList()
 {
     return this->foundFiles;
+}
+
+void SearchWindow::on_searchButton_clicked()
+{
+    // Ваш текущий код
+
+    // Теперь добавьте эмиссию сигнала
+    emit searchButtonClicked();
 }

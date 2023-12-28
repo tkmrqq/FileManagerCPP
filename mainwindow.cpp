@@ -15,8 +15,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
     searchWindow = new SearchWindow(this);
-    favoritesWidget = new FavoritesWidget(this);
-    ui->favLayout->addWidget(favoritesWidget);
+    connect(searchWindow, SIGNAL(searchButtonClicked()), this, SLOT(onSearchButtonClicked()));
+    //    favoritesWidget = new FavoritesWidget(this);
+    //    ui->favLayout->addWidget(favoritesWidget);
     searchWindow->hide();
     //    ui->closeButton->setStyleSheet("QPushButton{background: transparent;}");
     //    this->setWindowFlag(Qt::FramelessWindowHint);
@@ -318,6 +319,8 @@ void MainWindow::renderSearch(QStringList files)
         QPushButton *button = new QPushButton(this);
         button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
         button->setIconSize(QSize(64, 64));
+        QString transPath = QFileInfo(filename).filePath();
+        connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
         QLabel *label = new QLabel(filename);
         label->setStyleSheet("color: white");
         horizontalLayout->addWidget(button);
@@ -377,8 +380,17 @@ void MainWindow::getDriveList()
     foreach (const QString &diskName, drives) {
         QPushButton *button = new QPushButton(diskName);
         //        connect(button, &QPushButton::clicked, this, [this, diskName]() { to_disk(diskName); });
-        // Добавляйте кнопку в ваш интерфейс
-        ui->frame_4->layout()->addWidget(button);
+        ui->frame_5->layout()->addWidget(button);
+    }
+}
+
+void MainWindow::onSearchButtonClicked()
+{
+    clearDir();
+    QStringList foundedFiles = searchWindow->getFilesList();
+    if (!foundedFiles.isEmpty()) {
+        renderSearch(foundedFiles);
+    } else {
     }
 }
 
@@ -388,8 +400,8 @@ void MainWindow::on_searchButton_clicked()
     searchWindow->move(this->rect().center().x() - searchWindow->rect().center().x(), 50);
     searchWindow->show();
     searchWindow->setDirectory(currentPath);
-    QStringList foundedFiles = searchWindow->getFilesList();
-    renderSearch(foundedFiles);
+    //    QStringList foundedFiles = searchWindow->getFilesList();
+    //    renderSearch(foundedFiles);
 }
 
 void MainWindow::propertiesButton(QString folderName)
@@ -416,12 +428,52 @@ void MainWindow::showContextMenu(const QString &transPath)
     connect(copy, &QAction::triggered, [=]() { actionCopy(transPath); });
     connect(paste, &QAction::triggered, [=]() { actionPaste(); });
     connect(rename, &QAction::triggered, [=]() { actionRename(transPath); });
+    connect(cut, &QAction::triggered, [=]() { actionCut(transPath); });
 
     contextMenu.addAction(properties);
     contextMenu.addAction(deleteAction);
 
     QPoint globalPos = QCursor::pos();
     contextMenu.exec(globalPos);
+}
+
+void MainWindow::copyDirectory(const QString &sourceDir, const QString &destinationDir)
+{
+    QDir sourceDirectory(sourceDir);
+    QDir destinationDirectory(destinationDir);
+
+    if (!sourceDirectory.exists() || !sourceDirectory.isReadable()) {
+        qDebug() << "Невозможно прочитать исходную директорию.";
+        return;
+    }
+
+    if (!destinationDirectory.exists()) {
+        if (!QDir().mkpath(destinationDir)) {
+            qDebug() << "Не удалось создать целевую директорию.";
+            return;
+        }
+    }
+
+    // Получаем список файлов и поддиректорий внутри исходной директории
+    QStringList fileList = sourceDirectory.entryList(QDir::Files | QDir::Dirs
+                                                     | QDir::NoDotAndDotDot);
+
+    foreach (const QString &fileName, fileList) {
+        QString sourcePath = sourceDir + QDir::separator() + fileName;
+        QString destinationPath = destinationDir + QDir::separator() + fileName;
+
+        if (QFileInfo(sourcePath).isDir()) {
+            // Если это поддиректория, рекурсивно копируем её содержимое
+            copyDirectory(sourcePath, destinationPath);
+        } else {
+            // Если это файл, просто копируем его
+            if (QFile::copy(sourcePath, destinationPath)) {
+                qDebug() << "Файл успешно скопирован: " << destinationPath;
+            } else {
+                qDebug() << "Не удалось скопировать файл: " << destinationPath;
+            }
+        }
+    }
 }
 
 void MainWindow::actionCopy(const QString &source)
@@ -444,19 +496,17 @@ void MainWindow::copyToDestination(const QString &sourcePath)
         QString destinationPathWithFileName = currentPath + QDir::separator() + fileName;
 
         if (QFile::copy(sourcePath, destinationPathWithFileName)) {
-            qDebug() << "Файл успешно скопирован.";
+            qDebug() << "Файл успешно скопирован: " << destinationPathWithFileName;
         } else {
-            qDebug() << "Не удалось скопировать файл.";
+            qDebug() << "Не удалось скопировать файл: " << destinationPathWithFileName;
         }
     } else if (sourceFileInfo.isDir()) {
         QDir sourceDir(sourcePath);
         QString destinationDirPath = currentPath + QDir::separator() + sourceDir.dirName();
 
-        if (QDir().mkpath(destinationDirPath) && QFile::copy(sourcePath, destinationDirPath)) {
-            qDebug() << "Директория успешно скопирована.";
-        } else {
-            qDebug() << "Не удалось скопировать директорию.";
-        }
+        // Вызываем функцию для рекурсивного копирования содержимого директории
+        copyDirectory(sourcePath, destinationDirPath);
+        qDebug() << "Директория успешно скопирована: " << destinationDirPath;
     }
 }
 
@@ -470,47 +520,57 @@ void MainWindow::actionPaste()
         foreach (QUrl url, urlList) {
             QString sourcePath = url.toLocalFile();
             qDebug() << "pasting";
-            copyToDestination(sourcePath);
-            updateDir();
+
+            if (cutProgress) {
+                copyToDestination(sourcePath);
+                actionDelete(sourcePath);
+                updateDir();
+            } else {
+                copyToDestination(sourcePath);
+                updateDir();
+            }
         }
+        cutProgress = false;
     }
+}
+
+bool MainWindow::messageDisplay()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,
+                                  "Подтверждение удаления",
+                                  "Вы уверены, что хотите удалить?",
+                                  QMessageBox::Yes | QMessageBox::No);
+    return (reply == QMessageBox::Yes);
 }
 
 void MainWindow::actionDelete(const QString &path)
 {
     QFileInfo fileInfo(path);
     if (fileInfo.isFile()) {
-        QFile file(path);
-        qDebug() << path;
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this,
-                                      "Подтверждение удаления",
-                                      "Вы уверены, что хотите удалить файл?",
-                                      QMessageBox::Yes | QMessageBox::No);
-
-        if (reply == QMessageBox::Yes) {
-            if (file.remove()) {
+        if (!cutProgress) {
+            if (messageDisplay()) {
+                QFile file(path);
+                file.remove();
                 QMessageBox::information(this, "Успех", "Файл успешно удален.");
-            } else {
-                QMessageBox::warning(this, "Ошибка", "Не удалось удалить файл.");
             }
+        } else {
+            QFile file(path);
+            file.remove();
         }
     } else if (fileInfo.isDir()) {
-        // Элемент является директорией
-        QDir dir(path);
-
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this,
-                                      "Подтверждение удаления",
-                                      "Вы уверены, что хотите удалить директорию и ее содержимое?",
-                                      QMessageBox::Yes | QMessageBox::No);
-
-        if (reply == QMessageBox::Yes) {
-            if (dir.removeRecursively()) {
-                QMessageBox::information(this, "Успех", "Директория успешно удалена.");
-            } else {
-                QMessageBox::warning(this, "Ошибка", "Не удалось удалить директорию.");
+        if (!cutProgress) {
+            if (messageDisplay()) {
+                QDir dir(path);
+                if (dir.removeRecursively()) {
+                    QMessageBox::information(this, "Успех", "Директория успешно удалена.");
+                } else {
+                    QMessageBox::warning(this, "Ошибка", "Не удалось удалить директорию.");
+                }
             }
+        } else {
+            QDir dir(path);
+            dir.removeRecursively();
         }
     }
     updateDir();
@@ -528,15 +588,20 @@ void MainWindow::actionRename(const QString &oldPath)
         return;
     }
 
-    // Формируем новый путь с новым именем
     QString newPath = QDir(fileInfo.absolutePath()).filePath(newName);
 
-    // Переименовываем файл или директорию
     if (QFile::rename(oldPath, newPath)) {
         qDebug() << "Successfully renamed to" << newPath;
     } else {
         qDebug() << "Failed to rename.";
     }
+    updateDir();
+}
+
+void MainWindow::actionCut(const QString &source)
+{
+    cutProgress = true;
+    actionCopy(source);
 }
 
 void MainWindow::createFolder(const QString &folderPath)
@@ -563,18 +628,25 @@ void MainWindow::createFolder(const QString &folderPath)
 QString MainWindow::inputNameDialog()
 {
     QInputDialog dialog(this);
-    dialog.setOption(QInputDialog::NoButtons);
-    bool ok;
+    dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    dialog.setWindowTitle("Ввод имени");
+    dialog.setLabelText("Введите название:");
+    //    dialog.setTextEchoMode(QLineEdit::Password);
 
-    QString inputText = dialog.getText(this, "Rename", "Enter new name:", QLineEdit::Normal, "", &ok);
+    dialog.setStyleSheet("color: white;");
+    dialog.setInputMode(QInputDialog::TextInput);
 
-    if (ok && !inputText.isEmpty()) {
-        qDebug() << "Input ok!";
-        return inputText;
-    } else {
-        qDebug() << "Input not ok!";
-        return QString(); // Возврат пустой строки, если пользователь отменил ввод
+    QLineEdit *lineEdit = dialog.findChild<QLineEdit *>();
+    if (lineEdit) {
+        lineEdit->setStyleSheet("border: 2px solid #151515; border-radius: 24px;");
+        QRegExpValidator *validator = new QRegExpValidator(QRegExp("[^\\\\/:*?\"<>|]*"), this);
+        lineEdit->setValidator(validator);
     }
+
+    if (dialog.exec() == QDialog::Accepted && !dialog.textValue().isEmpty()) {
+        return dialog.textValue();
+    } else
+        return QString();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

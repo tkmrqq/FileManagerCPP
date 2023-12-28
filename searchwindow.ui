@@ -115,12 +115,19 @@ background-color: #151515;</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="searchButton">
+       <widget class="QPushButton" name="searchButton">
         <property name="text">
          <string/>
         </property>
-        <property name="pixmap">
-         <pixmap resource="WindowIcon.qrc">:/new/windowIcon/Resources/Icons/search.svg</pixmap>
+        <property name="icon">
+         <iconset resource="WindowIcon.qrc">
+          <normaloff>:/new/windowIcon/Resources/Icons/search.svg</normaloff>:/new/windowIcon/Resources/Icons/search.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
         </property>
        </widget>
       </item>

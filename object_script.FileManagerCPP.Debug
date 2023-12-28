@@ -1,0 +1,14 @@
+debug/favoriteswidget.o
+debug/fileinfolist.o
+debug/flowlayout.o
+debug/main.o
+debug/mainwindow.o
+debug/searchwindow.o
+debug/tablemodel.o
+debug/qrc_WindowIcon.o
+debug/moc_favoriteswidget.o
+debug/moc_fileinfolist.o
+debug/moc_fileinfowindow.o
+debug/moc_mainwindow.o
+debug/moc_searchwindow.o
+debug/moc_tablemodel.o

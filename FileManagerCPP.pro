@@ -18,21 +18,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     favoriteswidget.cpp \
-    fileinfolist.cpp \
-    flowlayout.cpp \
     main.cpp \
     mainwindow.cpp \
-    searchwindow.cpp \
-    tablemodel.cpp
+    searchwindow.cpp
 
 HEADERS += \
+    FileItem.h \
+    exp.h \
     favoriteswidget.h \
-    fileinfolist.h \
     fileinfowindow.h \
-    flowlayout.h \
     mainwindow.h \
-    searchwindow.h \
-    tablemodel.h
+    myString.h \
+    myVector.h \
+    searchwindow.h
 
 FORMS += \
     mainwindow.ui \

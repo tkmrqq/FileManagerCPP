@@ -18,14 +18,13 @@ class MainWindow : public QMainWindow
 public:
     ~MainWindow();
     MainWindow(QWidget* parent = nullptr);
-    //widget
-    //    TableModel *tableModel = new TableModel(this);
     enum SortCriterion { Name, Size, Date, Type };
 
 public slots:
     QString inputNameDialog();
     void createFolder(const QString &folderPath);
     void onButtonClicked(QString folderName);
+    void onSearchButtonClicked();
 
 private slots:
 
@@ -37,9 +36,11 @@ private slots:
     void actionCreate() { createFolder(currentPath); }
     void actionDelete(const QString &path);
     void actionCopy(const QString &source);
+    void copyDirectory(const QString &sourceDir, const QString &destinationDir);
     void copyToDestination(const QString &source);
     void actionPaste();
     void actionRename(const QString &oldpath);
+    void actionCut(const QString &path);
 
     void on_closeButton_clicked();
     void on_maximizeButton_clicked();
@@ -48,7 +49,6 @@ private slots:
     void on_prevButton_clicked();
     void on_themeButton_clicked();
     void on_searchButton_clicked();
-    //    void onButtonClicked(QString folderName); //moved to public slots (undo if needed)
     void handleDoubleClick(QString folderName);
     void onDirectoryChanged();
     //render
@@ -67,19 +67,17 @@ private slots:
     void keyPressEvent(QKeyEvent *event);
 
     void sortFiles(QStringList &files, QDir directory);
+    bool messageDisplay();
 
 private:
     Ui::MainWindow *ui;
-    //    QFileSystemModel *dirmodel;
-    //    QTimer *doubleClickTimer;
-    //    QFileSystemWatcher *fileSystemWatcher;
     QMenu *contextMenu;
     SortCriterion currentSort;
     QString currentPath;
     QString folderName;
     QString prevPath;
     SearchWindow *searchWindow;
-    FavoritesWidget *favoritesWidget;
+    bool cutProgress = false;
 };
 
 #endif // MAINWINDOW_H

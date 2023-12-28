@@ -1,6 +1,7 @@
 #ifndef SEARCHWINDOW_H
 #define SEARCHWINDOW_H
 
+#include <QPushButton>
 #include <QWidget>
 
 namespace Ui {
@@ -21,6 +22,10 @@ public slots:
     QStringList getFilesList();
     void searchFiles(const QString &directoryPath, const QString &targetFileName);
     void clearFounded();
+    void on_searchButton_clicked();
+
+signals:
+    void searchButtonClicked();
 
 private:
     Ui::SearchWindow *ui;
