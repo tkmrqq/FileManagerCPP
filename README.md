@@ -1,1 +1,1 @@
-<img src="FileManagerCPP/Screenshots/fmCPP-black">
+<img src="Screenshots/fmCPP-black.png">
