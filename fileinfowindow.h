@@ -17,16 +17,16 @@ public:
         QFileInfo fileInfo(filePath);
 
         QVBoxLayout *layout = new QVBoxLayout;
-        addLabel(layout, "Path", fileInfo.absoluteFilePath());
-        addLabel(layout, "Size", formatSize(fileInfo.size()));
-        addLabel(layout, "Created", fileInfo.birthTime().toString());
-        addLabel(layout, "Last Modified", fileInfo.lastModified().toString());
-        addLabel(layout, "Type", fileType(fileInfo));
-        addLabel(layout, "Is Directory", fileInfo.isDir() ? "Yes" : "No");
+        addLabel(layout, "Путь", fileInfo.absoluteFilePath());
+        addLabel(layout, "Размер", formatSize(fileInfo.size()));
+        addLabel(layout, "Создан", fileInfo.birthTime().toString());
+        addLabel(layout, "Послднее изменение", fileInfo.lastModified().toString());
+        addLabel(layout, "Тип", fileType(fileInfo));
+        addLabel(layout, "", fileInfo.isDir() ? "Папка" : "Файл");
 
         setLayout(layout);
-        setWindowTitle("File Information");
-        setFixedSize(300, 200);
+        setWindowTitle("Информация о файле");
+        setFixedSize(400, 200);
     }
 
     QString formatSize(qint64 sizeInBytes)
@@ -48,7 +48,7 @@ public:
 
     QString fileType(const QFileInfo &fileInfo)
     {
-        return fileInfo.isDir() ? "Directory" : fileInfo.suffix();
+        return fileInfo.isDir() ? "Директория" : fileInfo.suffix();
     }
 
 private:

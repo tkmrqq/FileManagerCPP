@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     searchWindow = new SearchWindow(this);
     connect(searchWindow, SIGNAL(searchButtonClicked()), this, SLOT(onSearchButtonClicked()));
     //    favoritesWidget = new FavoritesWidget(this);
-    //    ui->favLayout->addWidget(favoritesWidget);
     searchWindow->hide();
     //    ui->closeButton->setStyleSheet("QPushButton{background: transparent;}");
     //    this->setWindowFlag(Qt::FramelessWindowHint);
@@ -71,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //    QAction *sort = contextMenu->addAction("Sort");
     //    QAction *properties = contextMenu->addAction("Properties");
 
-    connect(view, &QAction::triggered, this, &MainWindow::action1Clicked);
+    connect(view, &QAction::triggered, this, &MainWindow::actionView);
     //    connect(sort, &QAction::triggered, this, &MainWindow::action2Clicked);
     connect(create, &QAction::triggered, this, &MainWindow::actionCreate);
     connect(update, &QAction::triggered, [=]() { updateDir(); });
@@ -252,56 +251,69 @@ void MainWindow::renderDir(const QString &dirPath)
     currentPath = dirPath;
     QDir directory(dirPath);
     QStringList files = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-    //    renderSearch(files);
+    sortFiles(files, directory);
+    try {
+        currentFiles.clear();
+        for (const QString &file : files) {
+            currentFiles.push_back(FileItem(file));
+        }
+    } catch (Exp error) {
+        error.show();
+    }
     render(files, directory);
 }
 
 void MainWindow::render(QStringList files, QDir directory)
 {
-    sortFiles(files, directory);
-
     QGridLayout *gridLayout = new QGridLayout;
     int row = 0;
     int col = 0;
     QFileIconProvider iconProvider;
-    foreach (const QString &filename, files) {
+    for (const FileItem &fileItem : currentFiles) {
         QPushButton *button = new QPushButton(this);
-        QFileInfo fileInfo(directory.filePath(filename));
         QVBoxLayout *folder = new QVBoxLayout;
         folder->setAlignment(Qt::AlignLeft);
+
+        // Используем значение поля name
+        QString fileName = fileItem.getName().toUtf8().constData();
+
+        QFileInfo fileInfo(directory.filePath(fileName));
+
         if (fileInfo.isDir()) {
             button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/folder.svg"));
-        } else {        
+        } else {
             QIcon fileIcon = iconProvider.icon(fileInfo);
             if (!fileIcon.isNull()) {
-                button->setIcon(fileIcon);
+                button->setIcon(QIcon(fileIcon));
             } else {
                 button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
             }
         }
-        button->setIconSize(QSize(64, 64));
-        QLabel *label = new QLabel(QFileInfo(filename).fileName());
+
+        button->setIconSize(QSize(iconSize, iconSize));
+        QLabel *label = new QLabel(fileName);
         label->setWordWrap(true);
-        label->setMaximumWidth(64);
-        QString transPath = currentPath + '/' + QFileInfo(filename).filePath();
+        label->setMaximumWidth(iconSize);
+
+        QString transPath = fileInfo.filePath();
+
         connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
         folderName = transPath;
         label->setStyleSheet("color: white");
         button->setStyleSheet("QPushButton {background-color: transparent} QPushButton:pressed "
                               "{background-color: #131313; border-radius: 8px}");
         button->setContextMenuPolicy(Qt::CustomContextMenu);
+
         connect(button, &QPushButton::customContextMenuRequested, [=]() {
             showContextMenu(transPath);
         });
-        //        folder->addWidget(button);
-        //        folder->addWidget(label);
+
         gridLayout->setAlignment(button, Qt::AlignTop | Qt::AlignHCenter);
         gridLayout->setAlignment(label, Qt::AlignTop | Qt::AlignHCenter);
 
         gridLayout->addWidget(button, row, col);
         gridLayout->addWidget(label, row + 1, col);
-        //        gridLayout->addLayout(folder, row, col);
-        gridLayout->SetFixedSize;
+
         col++;
         if (col > 5) {
             col = 0;
@@ -318,7 +330,7 @@ void MainWindow::renderSearch(QStringList files)
         QHBoxLayout *horizontalLayout = new QHBoxLayout;
         QPushButton *button = new QPushButton(this);
         button->setIcon(QIcon(":/new/windowIcon/Resources/Icons/file.svg"));
-        button->setIconSize(QSize(64, 64));
+        button->setIconSize(QSize(iconSize, iconSize));
         QString transPath = QFileInfo(filename).filePath();
         connect(button, &QPushButton::clicked, [=] { MainWindow::onButtonClicked(transPath); });
         QLabel *label = new QLabel(filename);
@@ -519,7 +531,7 @@ void MainWindow::actionPaste()
         QList<QUrl> urlList = mimeData->urls();
         foreach (QUrl url, urlList) {
             QString sourcePath = url.toLocalFile();
-            qDebug() << "pasting";
+            qDebug() << "вставка";
 
             if (cutProgress) {
                 copyToDestination(sourcePath);
@@ -542,6 +554,28 @@ bool MainWindow::messageDisplay()
                                   "Вы уверены, что хотите удалить?",
                                   QMessageBox::Yes | QMessageBox::No);
     return (reply == QMessageBox::Yes);
+}
+
+void MainWindow::actionView()
+{
+    switch (currentIconSize) {
+    case Big: {
+        iconSize = 256;
+        currentIconSize = Medium;
+        break;
+    }
+    case Medium: {
+        iconSize = 128;
+        currentIconSize = Small;
+        break;
+    }
+    case Small: {
+        iconSize = 64;
+        currentIconSize = Big;
+        break;
+    }
+    }
+    updateDir();
 }
 
 void MainWindow::actionDelete(const QString &path)

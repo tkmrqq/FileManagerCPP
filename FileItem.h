@@ -7,13 +7,15 @@
 
 class FileItem
 {
-    MyString name;
+    QString name;
     qint64 size;
     QDateTime createdDate;
 
 public:
+    FileItem(){};
     FileItem(const QString &name, qint64 size, const QDateTime &created);
-    MyString getName() const { return name; }
+    FileItem(const QString &qstr) { name = qstr; };
+    QString getName() const { return name; }
     qint64 getSize() const { return size; }
     QDateTime getCreatedDate() const { return createdDate; }
 };

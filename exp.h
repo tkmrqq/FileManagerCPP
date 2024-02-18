@@ -1,38 +1,37 @@
 #ifndef EXP_H
 #define EXP_H
 
-#include <cstring>
-#include <iostream>
+#include "cstring"
+#include "iostream"
 
-size_t getLength(const char *str);
-
-class MyString
+class Exp
 {
-    char *str;
-    size_t length;
+    int code;
+    char msg[80]{};
 
 public:
-    MyString() : str(nullptr), length(0) {}
-    explicit MyString(const char *str_t);
-    MyString(const MyString &other);
+    Exp();
+    Exp(int, char[]);
+    void show();
+};
 
-    MyString &operator=(const MyString &other);
-    MyString operator+(const MyString &other) const;
-    MyString &operator+=(const MyString &other);
-    MyString operator()(int start, int end) const;
-    bool operator==(const MyString &other) const;
-    bool operator!=(const MyString &other) const;
-    char operator[](int index) const;
-    friend std::ostream &operator<<(std::ostream &os, const MyString &str_t)
-    {
-        os << str_t.str;
-        return os;
-    }
+class ExpInput : public Exp
+{
+public:
+    ExpInput(int a, char *b) : Exp(a, b){};
+};
 
-    size_t getLen() const;
-    void print() { std::cout << "This string: " << this->str; }
+class ExpFile : public Exp
+{
+public:
+    ExpFile() : Exp(){};
+    ExpFile(int code_t, char msg_t[80]) : Exp(code_t, msg_t){};
+};
 
-    ~MyString() { delete[] str; }
+class ExpCout : public Exp
+{
+    ExpCout() : Exp(){};
+    ExpCout(int code_t, char msg_t[80]) : Exp(code_t, msg_t){};
 };
 
 #endif // EXP_H

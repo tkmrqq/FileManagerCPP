@@ -1,8 +1,10 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
 
-#include "./exp.h"
+#include "FileItem.h"
+#include "exp.h"
 #include <iostream>
+#include <QStringList>
 
 template<typename T>
 class MyVector
@@ -182,23 +184,37 @@ void MyVector<T>::shrink_to_fit()
     }
 }
 
-template<typename T>
-void MyVector<T>::reserve(size_t newCapacity)
+//template<typename T>
+//void MyVector<T>::reserve(size_t newCapacity)
+//{
+//    if (newCapacity > capacity) {
+//        size_t newRealCapacity = capacity == 0 ? 1 : capacity * 2;
+//        newRealCapacity = std::max(newRealCapacity, newCapacity);
+
+//        T *newData = new T[newRealCapacity];
+
+//        for (size_t i = 0; i < size; ++i) {
+//            newData[i] = std::move(data[i]);
+//        }
+
+//        delete[] data;
+
+//        data = newData;
+//        capacity = newRealCapacity;
+//    }
+//}
+
+template<class T>
+void MyVector<T>::reserve(size_t new_cap)
 {
-    if (newCapacity > capacity) {
-        size_t newRealCapacity = capacity == 0 ? 1 : capacity * 2;
-        newRealCapacity = std::max(newRealCapacity, newCapacity);
-
-        T *newData = new T[newRealCapacity];
-
-        for (size_t i = 0; i < size; ++i) {
-            newData[i] = std::move(data[i]);
+    if (new_cap > capacity) {
+        T *new_data = new T[new_cap];
+        for (int i = 0; i < size; i++) {
+            new_data[i] = data[i];
         }
-
         delete[] data;
-
-        data = newData;
-        capacity = newRealCapacity;
+        data = new_data;
+        capacity = new_cap;
     }
 }
 

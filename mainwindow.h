@@ -1,9 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "FileItem.h"
 #include "favoriteswidget.h"
+#include "myVector.h"
 #include "searchwindow.h"
-//#include "tablemodel.h"
 #include <QMainWindow>
 #include <QtWidgets>
 
@@ -19,6 +20,7 @@ public:
     ~MainWindow();
     MainWindow(QWidget* parent = nullptr);
     enum SortCriterion { Name, Size, Date, Type };
+    enum IconSize { Big, Medium, Small };
 
 public slots:
     QString inputNameDialog();
@@ -32,7 +34,7 @@ private slots:
     void showContextMenu(const QPoint &pos) { contextMenu->exec(mapToGlobal(pos)); }
     void updateDir(const QString &path);
     void updateDir();
-    void action1Clicked() { qDebug() << "Doing 1 clicked"; }
+    void actionView();
     void actionCreate() { createFolder(currentPath); }
     void actionDelete(const QString &path);
     void actionCopy(const QString &source);
@@ -68,16 +70,19 @@ private slots:
 
     void sortFiles(QStringList &files, QDir directory);
     bool messageDisplay();
-
+    //40
 private:
     Ui::MainWindow *ui;
     QMenu *contextMenu;
     SortCriterion currentSort;
+    IconSize currentIconSize = Medium;
     QString currentPath;
     QString folderName;
     QString prevPath;
-    SearchWindow *searchWindow;
+    MyVector<FileItem> currentFiles;
     bool cutProgress = false;
+    int iconSize = 64;
+    SearchWindow *searchWindow;
 };
 
 #endif // MAINWINDOW_H
